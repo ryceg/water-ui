@@ -86,6 +86,16 @@ describe('reportWashScene', () => {
     }
   });
 
+  it('settles the film from the dry until the end, so the closing dry_all has nothing left to drop', () => {
+    const { timeline } = wash(1100, 56, 3);
+    const at = (key: string) => timeline.events.filter((e) => typeof e.op !== 'string' && key in e.op);
+    const [dry] = at('dry');
+    const [settle] = at('settle');
+    expect(settle?.at_tick).toBe(dry?.at_tick);
+    const { share } = (settle!.op as { settle: { share: number } }).settle;
+    expect(share * (timeline.total_ticks - settle!.at_tick)).toBeCloseTo(2.5);
+  });
+
   it('keeps only the base wash it lays', () => {
     expect(wash(1100, 56, 3).palette.entries).toEqual([{ role: 'base_wash', pigment: { name: 'indigo' } }]);
   });
