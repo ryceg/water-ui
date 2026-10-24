@@ -1,5 +1,7 @@
 # water-ui
 
+**Showcase: https://ryceg.github.io/water-ui/**
+
 Watercolour artwork for web UIs. A WebGPU simulation, written in Rust and
 compiled to wasm, paints each artwork in front of the viewer. Where WebGPU is
 missing, capped or refused, the same artwork plays from a baked frame strip or
@@ -12,6 +14,7 @@ components.
 | `crates/water-ui-infra/` | wgpu/WGSL simulation and rendering, scene documents, PNG export, the artwork catalogue and Lucide icon authoring. |
 | `crates/water-ui-wasm/` | wasm-bindgen web adapter. |
 | `packages/water-ui/` | The `water-ui` npm package: TypeScript API, Svelte components, baked assets, bench harness. |
+| `site/` | The showcase site: Vite + Svelte 5, deployed to GitHub Pages by `.github/workflows/pages.yml`. `pnpm site` runs it locally after `pnpm build:wasm`. |
 | `docs/` | Architecture, scene format, pigment model, public API, verification. Start at [docs/README.md](docs/README.md). |
 
 ## Build

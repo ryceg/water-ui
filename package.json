@@ -5,6 +5,8 @@
   "scripts": {
     "build:wasm": "pnpm --filter water-ui build:wasm",
     "check": "pnpm --filter water-ui check",
-    "test": "pnpm --filter water-ui test"
+    "test": "pnpm --filter water-ui test",
+    "site": "pnpm --filter water-ui-site dev",
+    "site:build": "pnpm --filter water-ui-site build"
   }
 }
