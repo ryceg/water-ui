@@ -54,6 +54,13 @@ const TOTAL_TICKS = 160;
 const DRY_AT = 0.5;
 const DRY_RATE = 3.5;
 /**
+ * The film's e-foldings the settle takes from `DRY_AT` to the end, so a wash,
+ * splotch or glaze is dry on its last tick, as `reportWashScene` settles.
+ * Without it they left 1-2% of their pigment for the closing `dry_all` to drop
+ * in one frame.
+ */
+const SETTLE_EFOLDINGS = 1.5;
+/**
  * Room around the paint for the bloom to spread into before the canvas edge
  * clips it, as a multiple of the fat-end radius.
  */
@@ -362,7 +369,9 @@ export function dropScene(
       },
     });
   }
-  events.push({ at_tick: Math.round(TOTAL_TICKS * DRY_AT), op: { dry: { rate: DRY_RATE } } });
+  const dryAt = Math.round(TOTAL_TICKS * DRY_AT);
+  events.push({ at_tick: dryAt, op: { dry: { rate: DRY_RATE } } });
+  events.push({ at_tick: dryAt, op: { settle: { share: SETTLE_EFOLDINGS / (TOTAL_TICKS - dryAt) } } });
   events.push({ at_tick: TOTAL_TICKS, op: 'dry_all' as unknown as Record<string, unknown> });
 
   const scene: SceneDocument = {

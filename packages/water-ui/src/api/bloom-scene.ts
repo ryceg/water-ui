@@ -31,6 +31,13 @@ const SURFACE_GAIN = 1.5;
 const BODY_SCATTER = 5;
 const DRY_AT = 0.6;
 const DRY_RATE = 3;
+/**
+ * The film's e-foldings the settle takes from `DRY_AT` to the end, so the
+ * bloom is dry on its last tick. Its film is deep, from a dab every tick of the
+ * growth, so it needs more than a drop does; the fixed `DRY_RATE` alone left
+ * 39% of the pigment for the closing `dry_all` to drop in one frame.
+ */
+const SETTLE_EFOLDINGS = 4.5;
 
 const toLinear = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 
@@ -118,7 +125,9 @@ export function bloomScene(
       });
     }
   }
-  events.push({ at_tick: Math.round(TOTAL_TICKS * DRY_AT), op: { dry: { rate: DRY_RATE } } });
+  const dryAt = Math.round(TOTAL_TICKS * DRY_AT);
+  events.push({ at_tick: dryAt, op: { dry: { rate: DRY_RATE } } });
+  events.push({ at_tick: dryAt, op: { settle: { share: SETTLE_EFOLDINGS / (TOTAL_TICKS - dryAt) } } });
   events.push({ at_tick: TOTAL_TICKS, op: 'dry_all' });
 
   return JSON.stringify({

@@ -71,6 +71,14 @@ describe('bloomScene', () => {
     }
   });
 
+  it('settles the film from the dry until the end, so the closing dry_all has nothing left to drop', () => {
+    const { timeline } = document(400, 150, 3, 0);
+    const at = (key: string) => timeline.events.find((e) => typeof e.op !== 'string' && key in e.op)!;
+    const settle = at('settle');
+    expect(settle.at_tick).toBe(at('dry').at_tick);
+    expect((settle.op as { settle: { share: number } }).settle.share * (timeline.total_ticks - settle.at_tick)).toBeCloseTo(4.5);
+  });
+
   it('reproduces a reading seed and varies the next reading', () => {
     const options = { seed: 7, slope: 0.5, colour };
     expect(bloomScene(module, 400, 150, options)).toBe(bloomScene(module, 400, 150, options));
