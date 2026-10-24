@@ -155,6 +155,14 @@ describe('dropScene', () => {
     expect(doc.timeline.events.some((e) => typeof e.op !== 'string' && 'dry' in e.op)).toBe(true);
   });
 
+  it('settles the film from the dry until the end, so the closing dry_all has nothing left to drop', () => {
+    const { timeline } = parse(dropScene(module, wash, 160, 40).sceneJson);
+    const at = (key: string) => timeline.events.find((e) => typeof e.op !== 'string' && key in e.op)!;
+    const settle = at('settle');
+    expect(settle.at_tick).toBe(at('dry').at_tick);
+    expect((settle.op as { settle: { share: number } }).settle.share * (timeline.total_ticks - settle.at_tick)).toBeCloseTo(1.5);
+  });
+
   it('lays a drop down whole, not drawn', () => {
     const doc = parse(dropScene(module, drops, 300, 200, { deposit: 'wet' }).sceneJson);
     const brushes = doc.timeline.events.filter((e) => typeof e.op !== 'string' && 'brush' in e.op);
