@@ -29,6 +29,13 @@ const BACKRUN_AFTER_TICKS = 24;
 const DRY_AFTER_TICKS = 70;
 const SETTLE_TICKS = 110;
 const DRY_RATE = 3;
+/**
+ * The film's e-foldings the settle takes over `SETTLE_TICKS`, as the engine's
+ * `settle_share_for_ticks` sizes a reveal's. The fixed `DRY_RATE` alone left
+ * most of the strip wet at the end, and the closing `dry_all` then dropped the
+ * pigment still in the water in one frame, darkening the wash as it finished.
+ */
+const SETTLE_EFOLDINGS = 2.5;
 
 /**
  * The window of the authored painting a `width` x `height` strip shows.
@@ -155,6 +162,7 @@ export function reportWashScene(
   const dryAt = lastTick + DRY_AFTER_TICKS;
   const totalTicks = dryAt + SETTLE_TICKS;
   events.push({ at_tick: dryAt, op: { dry: { rate: DRY_RATE } } });
+  events.push({ at_tick: dryAt, op: { settle: { share: SETTLE_EFOLDINGS / SETTLE_TICKS } } });
   events.push({ at_tick: totalTicks, op: 'dry_all' });
 
   return JSON.stringify({
