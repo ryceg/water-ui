@@ -41,6 +41,8 @@ export interface MountOptions extends ArtworkOptions {
    * than boot the engine for one frame.
    */
   liveStill?: boolean;
+  /** See `PlayerOptions.stillUntilReady`. */
+  stillUntilReady?: boolean;
 }
 
 /** The page background the artwork sits on; matches Artwork.svelte's default. */
@@ -259,6 +261,7 @@ export function mountPlayer(frame: HTMLElement, canvas: HTMLCanvasElement, optio
       autoplay: options.autoplay,
       releaseAfterFinish: options.releaseAfterFinish,
       liveStill: options.liveStill ?? (options.scene ? false : undefined),
+      stillUntilReady: options.stillUntilReady,
       startFinished,
       onProgress: options.onProgress,
       blendTicks: options.blendTicks,

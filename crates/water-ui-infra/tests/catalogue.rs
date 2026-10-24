@@ -4,7 +4,7 @@
 use std::collections::HashSet;
 
 use water_ui_core::application::{CpuEngine, Playback, Renderer};
-use water_ui_core::domain::{Background, Palette, Seed, SimResolution};
+use water_ui_core::domain::{Background, Operation, Palette, Seed, SimResolution};
 use water_ui_infra::authoring::{ArtworkCatalogue, DetailLevel};
 
 const EXPECTED_IDS: [&str; 42] = [
@@ -151,6 +151,36 @@ fn same_inputs_build_identical_scenes_and_different_seeds_differ() {
         assert_eq!(a, b, "{id}");
         assert_ne!(a, c, "{id}");
     }
+}
+
+/// A member list tells heads apart by colour, not by paper grain.
+#[test]
+fn avatar_seeds_spread_the_body_wash_across_the_palette() {
+    let palette = Palette::water();
+    let bodies: HashSet<usize> = (0..32)
+        .map(|seed| {
+            let scene = ArtworkCatalogue::by_id(
+                "avatar-wash",
+                Seed(seed),
+                &palette,
+                0.7,
+                DetailLevel::Medium,
+            )
+            .unwrap();
+            scene
+                .timeline
+                .events
+                .iter()
+                .filter_map(|e| match &e.op {
+                    Operation::Brush(stroke) => Some(stroke),
+                    _ => None,
+                })
+                .max_by_key(|stroke| stroke.path.len())
+                .unwrap()
+                .pigment
+        })
+        .collect();
+    assert_eq!(bodies.len(), palette.entries.len(), "{bodies:?}");
 }
 
 #[test]

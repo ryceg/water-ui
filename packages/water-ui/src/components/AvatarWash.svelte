@@ -47,6 +47,9 @@
         fit,
         surface,
         releaseAfterFinish: true,
+        // The bundled still is one seed, so drawing it while the engine boots
+        // would give every name the same wash.
+        stillUntilReady: false,
         onReady: onready,
       },
     );
