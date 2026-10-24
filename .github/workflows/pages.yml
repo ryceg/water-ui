@@ -27,16 +27,19 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           key: wasm
-      - name: wasm-bindgen CLI and binaryen
+      - name: wasm-bindgen CLI
         run: |
           version=$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock | sed -n 's/^version = "\(.*\)"$/\1/p')
           cargo install wasm-bindgen-cli --version "$version" --locked
-          sudo apt-get install -y binaryen
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: pnpm
+      # Not apt's binaryen: Ubuntu 24.04 ships version 108, whose -Os silently breaks generated
+      # scenes (ReportHeaderWash paints nothing, with no error).
+      - name: binaryen
+        run: npm install --global binaryen@132.0.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:wasm
       - run: pnpm --filter water-ui-site build
