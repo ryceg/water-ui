@@ -21,13 +21,32 @@ pub(super) const BANNER_3_1: SizeHint = SizeHint {
     height: 171,
 };
 
-/// A loose disc of the base pigment with the accent and shadow dropped in
-/// while wet; the host clips it to the avatar's shape.
+/// The body pigment an avatar's seed picks from; the two drops take the roles
+/// after it, so a palette yields four washes a viewer can tell apart.
+const AVATAR_ROLES: [PigmentRole; 4] = [
+    PigmentRole::BaseWash,
+    PigmentRole::Accent,
+    PigmentRole::Glow,
+    PigmentRole::Shadow,
+];
+
+/// A loose disc of one pigment with two others dropped in while wet; the host
+/// clips it to the avatar's shape. The seed is the avatar's identity, so it
+/// chooses the body pigment and where the drops land, not only the grain.
 pub(super) fn avatar_wash(style: &Style, palette: &Palette) -> Scene {
     let frame = Frame::new(SQUARE);
-    let base = role(palette, PigmentRole::BaseWash);
-    let accent = role(palette, PigmentRole::Accent);
-    let shadow = role(palette, PigmentRole::Shadow);
+    let mut stream = style.stream(3);
+    let pick = (stream.next_u64() % AVATAR_ROLES.len() as u64) as usize;
+    let rotated = |by: usize| role(palette, AVATAR_ROLES[(pick + by) % AVATAR_ROLES.len()]);
+    let (base, accent, shadow) = (rotated(0), rotated(1), rotated(3));
+    let angle = stream.next_f32() * std::f32::consts::TAU;
+    let drop =
+        |angle: f32, reach: f32| frame.pt(0.47 + angle.cos() * reach, 0.47 + angle.sin() * reach);
+    let accent_at = drop(angle, 0.12 + stream.next_f32() * 0.06);
+    let shadow_at = drop(
+        angle + std::f32::consts::PI + stream.next_signed() * 0.6,
+        0.14 + stream.next_f32() * 0.06,
+    );
     let (y0, y1) = (0.15, 0.79);
     let rows = if style.fine() { 7 } else { 5 };
     let mut p = Painting::new(style.ticks(320));
@@ -58,7 +77,7 @@ pub(super) fn avatar_wash(style: &Style, palette: &Palette) -> Scene {
     p.at(
         0.05,
         brush(
-            vec![frame.pt(0.6, 0.36)],
+            vec![accent_at],
             0.09,
             accent,
             style.conc(0.7),
@@ -70,7 +89,7 @@ pub(super) fn avatar_wash(style: &Style, palette: &Palette) -> Scene {
         p.at(
             0.1,
             brush(
-                vec![frame.pt(0.36, 0.64)],
+                vec![shadow_at],
                 0.07,
                 shadow,
                 style.conc(0.6),

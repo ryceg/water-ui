@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-type CreatedOptions = { width: number; height: number; startFinished?: boolean; liveStill?: boolean };
+type CreatedOptions = { width: number; height: number; startFinished?: boolean; liveStill?: boolean; stillUntilReady?: boolean };
 
 const created: Array<{ source: { surface?: string }; options: CreatedOptions; disposed: boolean }> = [];
 let released = false;
@@ -90,6 +90,12 @@ describe('mountPlayer', () => {
     mount(fakeFrame(160, 60), canvas, { scene: () => '{}', liveStill: true });
     mount(fakeFrame(160, 60), canvas, { artwork: 'tab-underline' });
     expect(created.map((entry) => entry.options.liveStill)).toEqual([false, true, undefined]);
+  });
+
+  it('passes stillUntilReady to the player', () => {
+    mount(fakeFrame(36, 36), canvas, { artwork: 'avatar-wash', stillUntilReady: false });
+    mount(fakeFrame(36, 36), canvas, { artwork: 'avatar-wash' });
+    expect(created.map((entry) => entry.options.stillUntilReady)).toEqual([false, undefined]);
   });
 
   it('builds a generated scene at the measured size and repaints a released scene after resize', () => {
