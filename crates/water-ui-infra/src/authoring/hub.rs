@@ -4,8 +4,8 @@
 //! one irregular [`Sheet`], so the picture dissolves into the page along a
 //! broken, lopsided edge instead of stopping at a frame or a stamped oval.
 
-use nocturne_watercolour_core::domain::seed::SeedStream;
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::seed::SeedStream;
+use water_ui_core::domain::{
     LiftStroke, Operation, Palette, Paper, PigmentRole, Point, RadiusProfile, Scene, SizeHint,
     StrokeSpan,
 };
@@ -610,7 +610,7 @@ pub(super) fn dawn_ridges(style: &Style, palette: &Palette) -> Scene {
 
 #[cfg(test)]
 mod tests {
-    use nocturne_watercolour_core::domain::{Background, Operation, Palette, Seed};
+    use water_ui_core::domain::{Background, Operation, Palette, Seed};
 
     use super::{IDS, STOPS};
     use crate::authoring::{ArtworkCatalogue, DetailLevel};

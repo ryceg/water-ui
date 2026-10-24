@@ -2,7 +2,7 @@
 //! before and after:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-core --example mask_raster_timing --release
+//! cargo run -p water-ui-core --example mask_raster_timing --release
 //! ```
 //!
 //! For each outline (16-, 96- and 400-point circles), each mask variant
@@ -11,8 +11,8 @@
 
 use std::time::Instant;
 
-use nocturne_watercolour_core::domain::paint::rasterize_mask_aspect;
-use nocturne_watercolour_core::domain::{Mask, Point};
+use water_ui_core::domain::paint::rasterize_mask_aspect;
+use water_ui_core::domain::{Mask, Point};
 
 fn circle(centre: (f32, f32), radius: f32, samples: usize) -> Vec<Point> {
     (0..samples)

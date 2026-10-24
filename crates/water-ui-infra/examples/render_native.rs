@@ -5,7 +5,7 @@
 //! reference and prints timings:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example render_native --release -- <out_dir> [sim_resolution] [--bench]
+//! cargo run -p water-ui-infra --example render_native --release -- <out_dir> [sim_resolution] [--bench]
 //! ```
 //!
 //! `--bench` runs only the tick benchmark: GPU ms per tick with the sheet
@@ -26,22 +26,20 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use nocturne_watercolour_core::application::{
-    CpuEngine, Exporter, Playback, Renderer, Reveal, Simulator,
-};
-use nocturne_watercolour_core::domain::optics::{
+use water_ui_core::application::{CpuEngine, Exporter, Playback, Renderer, Reveal, Simulator};
+use water_ui_core::domain::optics::{
     self, LUMINOUS_GRAIN_STRENGTH, LUMINOUS_TUNING, LuminousTuning, RenderParams,
 };
-use nocturne_watercolour_core::domain::paper::render_pixel_scale;
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::paper::render_pixel_scale;
+use water_ui_core::domain::{
     Background, BrushStroke, CompositeMode, Image, Operation, Palette, Paper, PaperField,
     PigmentRole, Point, RadiusProfile, Rgb, Scene, SceneId, Seed, SimResolution, SizeHint,
     StrokeSpan,
 };
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DetailLevel};
-use nocturne_watercolour_infra::document::{parse_scene_json, scene_to_json};
-use nocturne_watercolour_infra::export::{FrameSequence, PngExporter, srgb_to_linear};
-use nocturne_watercolour_infra::gpu::{CommandCounts, GpuContext, GpuEngine};
+use water_ui_infra::authoring::{ArtworkCatalogue, DetailLevel};
+use water_ui_infra::document::{parse_scene_json, scene_to_json};
+use water_ui_infra::export::{FrameSequence, PngExporter, srgb_to_linear};
+use water_ui_infra::gpu::{CommandCounts, GpuContext, GpuEngine};
 
 const SEED: Seed = Seed(42);
 const REVEAL_FRAMES: u32 = 8;

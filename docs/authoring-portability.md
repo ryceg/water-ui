@@ -78,7 +78,7 @@ grid into `0.1..0.9` of the square frame, and paints:
 - at `Small`, marks shorter than 0.10 are dropped and at most four are kept.
 
 No crate dependency was added. `lucide` (vanilla, ISC) is a peerDependency of
-`@nocturne/watercolour`; the host passes an `IconNode`. When neither WebGPU nor
+`water-ui`; the host passes an `IconNode`. When neither WebGPU nor
 a baked asset is available, an icon source falls back to the plain Lucide SVG.
 
 ### Results (seed 42, `slate`, light and dark, 48 px and 512 px)

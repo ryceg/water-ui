@@ -9,18 +9,16 @@ use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use nocturne_watercolour_core::application::playback::DEFAULT_PAINT_WALL_FRACTION;
-use nocturne_watercolour_core::application::{
-    EngineError, Exporter, Playback, PlaybackState, ProgressCurve,
-};
-use nocturne_watercolour_core::domain::{Image, Scene, Seed};
-use nocturne_watercolour_infra::document::{parse_appended_json, parse_scene_json};
-use nocturne_watercolour_infra::export::PngExporter;
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine, PresentSurface};
 use wasm_bindgen::prelude::*;
+use water_ui_core::application::playback::DEFAULT_PAINT_WALL_FRACTION;
+use water_ui_core::application::{EngineError, Exporter, Playback, PlaybackState, ProgressCurve};
+use water_ui_core::domain::{Image, Scene, Seed};
+use water_ui_infra::document::{parse_appended_json, parse_scene_json};
+use water_ui_infra::export::PngExporter;
+use water_ui_infra::gpu::{GpuContext, GpuEngine, PresentSurface};
 
 use crate::scene_tools::{self, BakedManifest, Surface};
-use nocturne_watercolour_infra::authoring::DetailLevel;
+use water_ui_infra::authoring::DetailLevel;
 
 const DEFAULT_MAX_LIVE_INSTANCES: u32 = 4;
 

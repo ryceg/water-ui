@@ -3,7 +3,7 @@
 //! be measured before and after the segment-culling change:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example catalogue_mask_timing --release
+//! cargo run -p water-ui-infra --example catalogue_mask_timing --release
 //! ```
 //!
 //! Each scene is built with `ArtworkCatalogue::by_id_for` and rasterised at
@@ -11,9 +11,9 @@
 
 use std::time::Instant;
 
-use nocturne_watercolour_core::domain::paint::rasterize_mask_aspect;
-use nocturne_watercolour_core::domain::{Background, Operation, Palette, Seed};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DetailLevel};
+use water_ui_core::domain::paint::rasterize_mask_aspect;
+use water_ui_core::domain::{Background, Operation, Palette, Seed};
+use water_ui_infra::authoring::{ArtworkCatalogue, DetailLevel};
 
 fn main() {
     let palette = Palette::moonlight();

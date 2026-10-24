@@ -2,7 +2,7 @@
 //! Each keeps one bold silhouette at `Small` and adds its secondary marks
 //! (halos, blooms, line hints) only when `Style::fine`.
 
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::{
     LiftStroke, Operation, Palette, Paper, PigmentRole, Point, RadiusProfile, Scene, StrokeSpan,
 };
 

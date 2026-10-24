@@ -1,5 +1,5 @@
 /**
- * Hand-written mirror of the gitignored `src/wasm/nocturne_watercolour.d.ts`,
+ * Hand-written mirror of the gitignored `src/wasm/water_ui.d.ts`,
  * so a clone without `build:wasm` still type-checks.
  */
 

@@ -3,11 +3,11 @@
 //!
 //! The GitHub mark is drawn only as a schematic silhouette, for the places the
 //! product names GitHub as a service. It is GitHub's trademark; see
-//! `docs/watercolour/provenance-and-licences.md`.
+//! `docs/provenance-and-licences.md`.
 
 use std::f32::consts::{PI, TAU};
 
-use nocturne_watercolour_core::domain::{Palette, Paper, PigmentRole, Scene};
+use water_ui_core::domain::{Palette, Paper, PigmentRole, Scene};
 
 use super::geometry::Frame;
 use super::{Painting, SQUARE, Shape, Style, brush, lift, role, stencil_body, tapered};

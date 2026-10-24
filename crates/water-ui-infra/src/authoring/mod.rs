@@ -15,13 +15,13 @@ mod icons_vitals;
 mod scenes;
 mod svg;
 
-pub use nocturne_watercolour_core::application::Choreography;
-use nocturne_watercolour_core::application::{
+pub use water_ui_core::application::Choreography;
+use water_ui_core::application::{
     apply_settle_fraction, choreograph, settle_after_last_stroke, settle_share_for_ticks,
 };
-use nocturne_watercolour_core::domain::scene::{MAX_CONCENTRATION, MAX_WATER};
-use nocturne_watercolour_core::domain::seed::SeedStream;
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::scene::{MAX_CONCENTRATION, MAX_WATER};
+use water_ui_core::domain::seed::SeedStream;
+use water_ui_core::domain::{
     Background, BrushStroke, LiftStroke, Mask, Operation, Palette, Paper, PigmentRole, Point,
     RadiusProfile, Scene, SceneId, Seed, SimResolution, SizeHint, StrokeSpan, SubSeed, Timeline,
     WaterStroke,

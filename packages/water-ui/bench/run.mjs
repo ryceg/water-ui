@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Performance harness for the watercolour engine. See docs/watercolour/verification.md.
+// Performance harness for the watercolour engine. See docs/verification.md.
 //
-//   pnpm --filter @nocturne/watercolour bench -- [options]
+//   pnpm --filter water-ui bench -- [options]
 //
 //   --scenarios a,b&n=40   scenario list (default: all). `name&n=40` overrides the count.
 //   --profiles p1,p2       desktop, laptop, phone-high, phone-low (default: all)
@@ -209,7 +209,7 @@ function categorize(res) {
   for (const r of res.values()) {
     if (!r.finished) continue;
     if (/\.wasm(\?|$)/.test(r.url)) add('wasm', r);
-    else if (/nocturne_watercolour[^/]*\.js(\?|$)/.test(r.url)) add('glue', r);
+    else if (/water_ui[^/]*\.js(\?|$)/.test(r.url)) add('glue', r);
     else if (r.type === 'Script' || /\.m?js(\?|$)/.test(r.url)) add('js', r);
     else if (r.mime.startsWith('image/')) add('image', r);
     else add('other', r);
@@ -459,8 +459,8 @@ async function main() {
 
   const meta = { startedAt, repeats: opts.repeats, git: 'unknown', os: `${os.platform()} ${os.release()} ${os.cpus()[0]?.model}`, node: process.version, args: process.argv.slice(2) };
   try { meta.git = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: pkgDir }).toString().trim(); } catch {}
-  try { meta.gitDirty = execFileSync('git', ['status', '--porcelain', '--', pkgDir, resolve(pkgDir, '../../../../crates')], { cwd: pkgDir }).toString().trim().length > 0; } catch {}
-  const wasmPath = join(pkgDir, 'src/wasm/nocturne_watercolour_bg.wasm');
+  try { meta.gitDirty = execFileSync('git', ['status', '--porcelain', '--', pkgDir, resolve(pkgDir, '../..')], { cwd: pkgDir }).toString().trim().length > 0; } catch {}
+  const wasmPath = join(pkgDir, 'src/wasm/water_ui_bg.wasm');
   if (existsSync(wasmPath)) {
     const buf = readFileSync(wasmPath);
     meta.wasm = { bytes: buf.length, gzip: gzipSync(buf, { level: 9 }).length, brotli: brotliCompressSync(buf).length, mtime: statSync(wasmPath).mtime.toISOString() };

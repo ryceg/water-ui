@@ -1,39 +1,38 @@
-# @nocturne/watercolour
+# water-ui
 
-See [docs/watercolour/](../../../../docs/watercolour/README.md) for the full developer documentation of the watercolour library.
+See [docs/](../../docs/README.md) for the full developer documentation of the watercolour library.
 
-Watercolour artwork for the Nocturne UI. A WebGPU simulation (Rust, compiled to
+Watercolour artwork for web UIs. A WebGPU simulation (Rust, compiled to
 wasm) paints each artwork on in front of the viewer; where WebGPU is missing,
 capped or refused, the same artwork plays from a baked frame strip or shows as a
 baked still. The public API is plain TypeScript; `Artwork.svelte` is a thin wrapper
 over it.
 
-The engine itself lives in `crates/nocturne-watercolour-{core,infra,wasm}`. Read
+The engine itself lives in `crates/water-ui-{core,infra,wasm}`. Read
 their READMEs for the simulation, the optics and the scene document format.
 
 ## Setup and build
 
 ```bash
-# once per clone, and after any change under crates/nocturne-watercolour-*
-pnpm --filter @nocturne/watercolour build:wasm
+# once per clone, and after any change under crates/water-ui-*
+pnpm --filter water-ui build:wasm
 
 # regenerate the baked/static fallback assets (needs a GPU; ~15 s)
-pnpm --filter @nocturne/watercolour bake
+pnpm --filter water-ui bake
 
-pnpm --filter @nocturne/watercolour check
-pnpm --filter @nocturne/watercolour test
+pnpm --filter water-ui check
+pnpm --filter water-ui test
 ```
 
 `build:wasm` runs `cargo build --profile wasm-release --target wasm32-unknown-unknown`
-and `wasm-bindgen --target web` into `src/wasm/`, which is gitignored like the
-NSwag client: a fresh clone has no bindings until it runs, and `check` fails on
+and `wasm-bindgen --target web` into `src/wasm/`, which is gitignored: a fresh clone has no bindings until it runs, and `check` fails on
 the missing module until then. It prints the module size and runs `wasm-opt -Os`
 only if one is on `PATH` (not installed here). Measured: 778 KB, 277 KB gzip.
 
 ## Public API
 
 ```ts
-import { createArtworkPlayer, detectCapabilities, getEngineHost } from '@nocturne/watercolour';
+import { createArtworkPlayer, detectCapabilities, getEngineHost } from 'water-ui';
 
 const caps = await detectCapabilities(); // { webgpu, adapter, reducedMotion, offscreenCanvas, reason? }
 
@@ -104,7 +103,7 @@ from the component contract (`ArtworkId`, `PaletteId`, `ArtworkOptions`,
 
 ```svelte
 <script lang="ts">
-  import { Artwork } from '@nocturne/watercolour';
+  import { Artwork } from 'water-ui';
 </script>
 
 <Artwork artwork="crescent-moon" palette="moonlight" seed={42} surface="dark" class="size-32" />
@@ -145,7 +144,7 @@ through a radial mask spreading from where the brush touched down.
 
 The full contract - the three-layer stack, the placement rules, the reveal
 curves and both colour directions - is in
-[`docs/watercolour/public-api.md`](../../../docs/watercolour/public-api.md#paint-drops).
+[`docs/public-api.md`](../../docs/public-api.md#paint-drops).
 
 ## Modes and fallbacks
 
@@ -222,7 +221,7 @@ once per page), else the WebP. The full catalogue is too large to check in (17 a
 6 palettes x 2 surfaces is ~100 MB), so the bundle ships a **curated subset**:
 each artwork in one default palette x both surfaces, baked at seed 1610,
 intensity 0.7 and `large` detail by
-`crates/nocturne-watercolour-wasm/examples/bake_catalogue.rs` driven by
+`crates/water-ui-wasm/examples/bake_catalogue.rs` driven by
 `scripts/bake-manifest.json`:
 
 | Artwork | Palette |
@@ -239,7 +238,7 @@ Strips are 10 frames at the artwork's natural aspect (icons and accents up to
 finals are the long edge 512 / 128 px at the same aspect. The set is ~6 MB
 total and is tracked in git so the baked fallback works on a fresh clone with
 no GPU. To regenerate or change it, edit `scripts/bake-manifest.json` and run
-`pnpm --filter @nocturne/watercolour bake`; to bake the whole catalogue or one
+`pnpm --filter water-ui bake`; to bake the whole catalogue or one
 artwork instead, run the example directly with `bake_catalogue <out_dir>` or
 `bake_catalogue <out_dir> <id>`. Serve a different bake via `assetBaseUrl` or
 explicit URLs through `assets`.
@@ -289,7 +288,7 @@ single-run spot checks on the machine above, not a benchmark harness.
 
 ## Native integration points
 
-`nocturne-watercolour-core` (domain + application) and `-infra` (wgpu + WGSL) are
+`water-ui-core` (domain + application) and `-infra` (wgpu + WGSL) are
 portable; the wasm crate is ~400 lines of glue. A native host implements the same
 three things this package does around them: create a `GpuContext`, attach a
 `PresentSurface` (`GpuContext::create_window_surface` takes any

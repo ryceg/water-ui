@@ -1,7 +1,7 @@
 //! Accents: restrained pieces that sit behind or beside interface text, so
 //! their pigment stays light and their geometry keeps to the edges.
 
-use nocturne_watercolour_core::domain::{Palette, Paper, PigmentRole, Point, Scene, SizeHint};
+use water_ui_core::domain::{Palette, Paper, PigmentRole, Point, Scene, SizeHint};
 
 use super::geometry::Frame;
 use super::{Painting, SQUARE, Style, brush, role, tapered, water};

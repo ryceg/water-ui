@@ -2,7 +2,7 @@
 
 use std::f32::consts::{PI, TAU};
 
-use nocturne_watercolour_core::domain::{Palette, Paper, PigmentRole, Scene};
+use water_ui_core::domain::{Palette, Paper, PigmentRole, Scene};
 
 use super::geometry::Frame;
 use super::{Painting, SQUARE, Shape, Style, brush, lift, role, stencil_body, tapered};

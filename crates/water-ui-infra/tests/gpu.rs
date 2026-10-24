@@ -5,18 +5,16 @@
 
 use std::sync::OnceLock;
 
-use nocturne_watercolour_core::application::{
-    CheckpointPolicy, CpuEngine, Playback, Renderer, Simulator,
-};
-use nocturne_watercolour_core::domain::optics::RenderParams;
-use nocturne_watercolour_core::domain::paper::{PaperField, render_pixel_scale};
-use nocturne_watercolour_core::domain::sim::SimParams;
-use nocturne_watercolour_core::domain::{
+use water_ui_core::application::{CheckpointPolicy, CpuEngine, Playback, Renderer, Simulator};
+use water_ui_core::domain::optics::RenderParams;
+use water_ui_core::domain::paper::{PaperField, render_pixel_scale};
+use water_ui_core::domain::sim::SimParams;
+use water_ui_core::domain::{
     Background, CompositeMode, Palette, Paper, Scene, Seed, SimResolution, swirl,
 };
-use nocturne_watercolour_infra::authoring::ArtworkCatalogue;
-use nocturne_watercolour_infra::export::linear_to_srgb;
-use nocturne_watercolour_infra::gpu::{BLUR_MAX_RADIUS, GpuContext, GpuEngine};
+use water_ui_infra::authoring::ArtworkCatalogue;
+use water_ui_infra::export::linear_to_srgb;
+use water_ui_infra::gpu::{BLUR_MAX_RADIUS, GpuContext, GpuEngine};
 
 /// Mean absolute difference (linear premultiplied RGBA) tolerated between
 /// the CPU reference and the GPU port on the finished `wash` at 128x128 sim.
@@ -115,7 +113,7 @@ fn crop_rejects_empty_nonfinite_and_outside_windows() {
 
 #[test]
 fn dab_matches_point_brush_deposits_and_paper_driven_flow() {
-    use nocturne_watercolour_core::domain::{Dab, Operation, Point, SizeHint};
+    use water_ui_core::domain::{Dab, Operation, Point, SizeHint};
     let Some(mut analytic) = gpu() else { return };
     let Some(mut stamped) = gpu() else { return };
     let mut cpu = CpuEngine::default();
@@ -197,7 +195,7 @@ fn seeded_replay_is_bit_identical_on_the_same_device() {
 
 #[test]
 fn dab_batches_preserve_tied_events_seeds_and_control_operations() {
-    use nocturne_watercolour_core::domain::{Dab, Mask, Operation, Point, Timeline};
+    use water_ui_core::domain::{Dab, Mask, Operation, Point, Timeline};
     let Some(template) = gpu() else { return };
     let mut scene = small_scene("wash");
     scene.sim_resolution = SimResolution(64);
@@ -267,7 +265,7 @@ fn dab_batches_preserve_tied_events_seeds_and_control_operations() {
 
 #[test]
 fn tick_interpolation_caches_shading_and_discards_discontinuous_history() {
-    use nocturne_watercolour_core::domain::{Dab, Operation, Point, Timeline};
+    use water_ui_core::domain::{Dab, Operation, Point, Timeline};
     let Some(engine) = gpu() else { return };
     let mut scene = small_scene("wash");
     scene.sim_resolution = SimResolution(64);
@@ -584,7 +582,7 @@ fn a_scene_on_pooled_buffers_plays_as_on_new_ones() {
 /// (`Dry`, `Settle`, the mask), plus the batch a readback flushes.
 #[test]
 fn a_playback_submits_a_batch_per_sixteen_ticks_and_state_upload() {
-    use nocturne_watercolour_core::domain::Operation;
+    use water_ui_core::domain::Operation;
     let Some(gpu) = gpu() else { return };
     let scene = small_scene("glaze_pair");
     let uploads = scene

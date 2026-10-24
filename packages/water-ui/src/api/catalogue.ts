@@ -5,7 +5,7 @@ import type { WasmModule } from './engine-host';
  * static import fails Vite's transform when the file is absent (same shape
  * as `engine-host.ts`). Empty in that case, so the list degrades to `[]`.
  */
-const wasmGlue = import.meta.glob('../wasm/nocturne_watercolour.js') as Record<string, () => Promise<WasmModule>>;
+const wasmGlue = import.meta.glob('../wasm/water_ui.js') as Record<string, () => Promise<WasmModule>>;
 
 let cached: Promise<string[]> | undefined;
 

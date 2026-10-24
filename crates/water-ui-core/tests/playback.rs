@@ -1,9 +1,9 @@
-use nocturne_watercolour_core::application::cpu::checkpoint_bytes;
-use nocturne_watercolour_core::application::{
+use water_ui_core::application::cpu::checkpoint_bytes;
+use water_ui_core::application::{
     Advance, AdvanceByElapsed, CheckpointPolicy, CpuEngine, Playback, PlaybackState, ProgressCurve,
     Reveal, Simulator, settle_after_last_stroke,
 };
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::{
     Background, BrushStroke, Operation, Palette, Paper, Point, RadiusProfile, Scene, SceneId, Seed,
     SimResolution, SimulationGrid, SizeHint, StrokeSpan, Timeline,
 };

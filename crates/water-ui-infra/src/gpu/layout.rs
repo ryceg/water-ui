@@ -1,7 +1,7 @@
 //! Offsets into the packed state and scratch buffers, in f32 elements. Must
 //! match `shaders/common.wgsl`.
 
-use nocturne_watercolour_core::domain::{CompositeMode, SimulationGrid};
+use water_ui_core::domain::{CompositeMode, SimulationGrid};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct StateLayout {
@@ -173,7 +173,7 @@ impl StateLayout {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nocturne_watercolour_core::domain::{Paper, PaperField, Seed};
+    use water_ui_core::domain::{Paper, PaperField, Seed};
 
     #[test]
     fn pack_unpack_round_trips() {

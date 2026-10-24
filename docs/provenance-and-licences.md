@@ -45,25 +45,26 @@ badge implying a relationship — use a different artwork.
 
 ## Licences
 
-The three Rust crates are **AGPL-3.0-only** (their `Cargo.toml`s say so),
-`publish = false`; the `@nocturne/watercolour` package is `private: true` with
-no `license` field in its manifest (see below). This section lists every
-**direct** dependency and its licence.
+water-ui itself is **not licensed**: no licence is granted, and all rights
+are reserved by the author. The three Rust crates are `publish = false` with
+no `license` field; the `water-ui` package is `private: true` with
+`"license": "UNLICENSED"`. This section lists every **direct** dependency and
+its licence.
 
 ### Rust crates
 
-Versions are the resolved ones in `crates/Cargo.lock`; licences were read from
+Versions are the resolved ones in `Cargo.lock`; licences were read from
 each crate's `Cargo.toml` in the local registry cache
 (`~/.cargo/registry/src/`).
 
-`nocturne-watercolour-core` has **no dependencies** (`[dependencies]` is empty
+`water-ui-core` has **no dependencies** (`[dependencies]` is empty
 and enforced by `tests/boundary.rs`).
 
-`nocturne-watercolour-infra`:
+`water-ui-infra`:
 
 | Dependency | Version | Licence |
 |---|---|---|
-| `nocturne-watercolour-core` | path | AGPL-3.0-only |
+| `water-ui-core` | path | - |
 | `wgpu` | 30.0.1 | MIT OR Apache-2.0 |
 | `bytemuck` | 1.25.2 | Zlib OR Apache-2.0 OR MIT |
 | `serde` | 1.0.228 | MIT OR Apache-2.0 |
@@ -72,12 +73,12 @@ and enforced by `tests/boundary.rs`).
 | `pollster` (native target only) | 1.0.1 | Apache-2.0/MIT |
 | `web-sys` (wasm32 target only) | 0.3.105 | MIT OR Apache-2.0 |
 
-`nocturne-watercolour-wasm`:
+`water-ui-wasm`:
 
 | Dependency | Version | Licence |
 |---|---|---|
-| `nocturne-watercolour-core` | path | AGPL-3.0-only |
-| `nocturne-watercolour-infra` | path | AGPL-3.0-only |
+| `water-ui-core` | path | - |
+| `water-ui-infra` | path | - |
 | `serde` | 1.0.228 | MIT OR Apache-2.0 |
 | `serde_json` | 1.0.150 | MIT OR Apache-2.0 |
 | `wasm-bindgen` (wasm32) | 0.2.128 | MIT OR Apache-2.0 |
@@ -89,10 +90,10 @@ and enforced by `tests/boundary.rs`).
 
 The `wasm-bindgen-cli` used at build time is 0.2.128 (matching `wasm-bindgen`).
 
-### The `@nocturne/watercolour` package
+### The `water-ui` package
 
-From `src/Web/packages/watercolour/package.json`: **no runtime npm
-dependencies** (the `dependencies` section is absent). `svelte >= 5.0.0`,
+From `packages/water-ui/package.json`: one runtime npm dependency,
+`@chenglou/pretext` (0.0.9, MIT), which lays out text for paint drops. `svelte >= 5.0.0`,
 `tailwindcss >= 4.0.0` and `lucide >= 0.400.0` (ISC) are **peer** dependencies
 (the component surface is Svelte 5 runes; the host supplies a Lucide `IconNode`
 for the `icon` prop). Build/dev tools are dev-only: `svelte` (5.55.5, MIT),

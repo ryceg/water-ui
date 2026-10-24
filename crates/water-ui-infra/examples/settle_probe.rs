@@ -5,7 +5,7 @@
 //! pigment settled, or the flow simply stopped.
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example settle_probe --release -- [id] [every] [gpu]
+//! cargo run -p water-ui-infra --example settle_probe --release -- [id] [every] [gpu]
 //! ```
 //!
 //! A third argument of `gpu` runs the wgpu engine instead of the CPU
@@ -20,12 +20,12 @@
 //! settle_probe crescent-moon 20 --wet-hi 0.06 --dry-deposition 30 --deposition-rate 0.0005
 //! ```
 
-use nocturne_watercolour_core::application::{CpuEngine, Playback};
-use nocturne_watercolour_core::domain::optics::RenderParams;
-use nocturne_watercolour_core::domain::sim::SimParams;
-use nocturne_watercolour_core::domain::{Background, Palette, Scene, Seed, SimulationGrid};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_core::application::{CpuEngine, Playback};
+use water_ui_core::domain::optics::RenderParams;
+use water_ui_core::domain::sim::SimParams;
+use water_ui_core::domain::{Background, Palette, Scene, Seed, SimulationGrid};
+use water_ui_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 /// One sampled row: the sheet's water, wet cells and pigment at a tick.
 fn row(tick: u32, grid: &SimulationGrid) {
@@ -132,7 +132,7 @@ fn main() {
         .events
         .iter()
         .filter_map(|e| match e.op {
-            nocturne_watercolour_core::domain::Operation::Dry { rate } => Some((e.at_tick, rate)),
+            water_ui_core::domain::Operation::Dry { rate } => Some((e.at_tick, rate)),
             _ => None,
         })
         .collect();

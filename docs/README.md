@@ -1,6 +1,6 @@
 # Watercolour graphics library
 
-A watercolour graphics engine for the Nocturne UI. A WebGPU simulation (Rust,
+A watercolour graphics engine for web UIs. A WebGPU simulation (Rust,
 compiled to wasm) paints each artwork on in front of the viewer; where WebGPU
 is missing, capped or refused, the same artwork plays from a baked frame strip
 or shows as a still PNG. The public surface is plain TypeScript plus thin
@@ -14,10 +14,10 @@ described in Curtis, Banks and Beier 1997, *Computer-Generated Watercolor*
 
 | Path | Contents |
 |---|---|
-| `crates/nocturne-watercolour-core/` | Domain model, CPU reference simulation, Kubelka-Munk optics, application ports and use cases. `std`-only. |
-| `crates/nocturne-watercolour-infra/` | wgpu/WGSL simulation and rendering, versioned serde scene documents, PNG export, the artwork catalogue, Lucide icon authoring (`authoring/svg.rs`). |
-| `crates/nocturne-watercolour-wasm/` | wasm-bindgen web adapter (thin). |
-| `src/Web/packages/watercolour/` | `@nocturne/watercolour` - the TypeScript API, Svelte components, baked/static assets, wasm output, per-icon hints (`src/api/icon-hints.ts`). `lucide` is a peer dependency: hosts supply icon element lists. |
+| `crates/water-ui-core/` | Domain model, CPU reference simulation, Kubelka-Munk optics, application ports and use cases. `std`-only. |
+| `crates/water-ui-infra/` | wgpu/WGSL simulation and rendering, versioned serde scene documents, PNG export, the artwork catalogue, Lucide icon authoring (`authoring/svg.rs`). |
+| `crates/water-ui-wasm/` | wasm-bindgen web adapter (thin). |
+| `packages/water-ui/` | `water-ui` - the TypeScript API, Svelte components, baked/static assets, wasm output, per-icon hints (`src/api/icon-hints.ts`). `lucide` is a peer dependency: hosts supply icon element lists. |
 
 ## What is where
 
@@ -43,7 +43,7 @@ described in Curtis, Banks and Beier 1997, *Computer-Generated Watercolor*
 
 ## Setup and build
 
-Rust (edition 2024, workspace at `crates/`) and Node/pnpm for the web
+Rust (edition 2024, workspace at the repo root) and Node/pnpm for the web
 packages. The wasm target and the bindings CLI are needed once:
 
 ```bash
@@ -51,44 +51,40 @@ rustup target add wasm32-unknown-unknown
 cargo install wasm-bindgen-cli --version 0.2.128
 ```
 
-Build the wasm bindings into `src/Web/packages/watercolour/src/wasm/` (needed
-after any change under `crates/nocturne-watercolour-*`, and on a fresh clone,
+Build the wasm bindings into `packages/water-ui/src/wasm/` (needed
+after any change under `crates/water-ui-*`, and on a fresh clone,
 which has no bindings):
 
 ```bash
-cd src/Web
-pnpm --filter @nocturne/watercolour build:wasm
+pnpm --filter water-ui build:wasm
 ```
 
 Regenerate the baked/static fallback assets (needs a GPU; ~15 s for the
 curated set):
 
 ```bash
-pnpm --filter @nocturne/watercolour bake
+pnpm --filter water-ui bake
 ```
 
 ### Tests
 
 ```bash
-# Rust, from crates/
-cargo test -p nocturne-watercolour-core
-cargo test -p nocturne-watercolour-infra
-cargo test -p nocturne-watercolour-wasm
+# Rust
+cargo test -p water-ui-core
+cargo test -p water-ui-infra
+cargo test -p water-ui-wasm
 # The full reveal sweep, ignored by default (about an hour)
-cargo test -p nocturne-watercolour-infra --release --test reveal_preserves_the_artwork -- --ignored
+cargo test -p water-ui-infra --release --test reveal_preserves_the_artwork -- --ignored
 
-# Web, from src/Web/
-pnpm --filter @nocturne/watercolour check
-pnpm --filter @nocturne/watercolour test
+# Web
+pnpm --filter water-ui check
+pnpm --filter water-ui test
 ```
 
-The engine-level tests in `nocturne-watercolour-infra` need a GPU; without an
+The engine-level tests in `water-ui-infra` need a GPU; without an
 adapter they print and return early.
 
 ## Delivery status
-
-Tracked in `docs/plans/2026-09-17-watercolour-plan.md` (progress log with
-decisions and measured numbers):
 
 | Stage | State |
 |---|---|
@@ -111,8 +107,6 @@ In plain language, what this library does not yet do well:
   scheduler stays correct, it just cannot keep a smooth 60 fps there.
 - **Baked assets stay at their baked detail.** The resolution override is live
   mode only.
-- **The host app has 46 pre-existing `svelte-check` errors** unrelated to this
-  library (stale generated client); the watercolour integration adds none.
 - **Build agents could not view images**, so visual verdicts came from the
   coordinator and a dedicated vision review.
 - **The wasm module needs `wasm-opt` on the build machine** (`npm install -g
@@ -130,7 +124,7 @@ Kubelka-Munk absorption/scattering coefficients, and a timeline of brush,
 water, lift and dry operations on a fixed-timestep simulation grid. A
 checkpointed playback steps the grid, and a renderer turns the finished cells
 into a premultiplied-linear-RGBA image via a per-pixel mixed pigment layer. The
-CPU reference (`nocturne-watercolour-core`) and the GPU (`nocturne-watercolour-infra`)
+CPU reference (`water-ui-core`) and the GPU (`water-ui-infra`)
 are two implementations of the same ports with the same rules; the wasm crate
 adapts the GPU engine for the browser, and the TypeScript package decides at
 runtime whether to draw live, from a baked strip, or from a still.

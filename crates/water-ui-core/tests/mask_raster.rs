@@ -3,8 +3,8 @@
 //! against a literal captured from the original implementation, so any change
 //! that alters the rasterised output, however subtly, fails here.
 
-use nocturne_watercolour_core::domain::paint::rasterize_mask_aspect;
-use nocturne_watercolour_core::domain::{Mask, Point};
+use water_ui_core::domain::paint::rasterize_mask_aspect;
+use water_ui_core::domain::{Mask, Point};
 
 /// `f32::sin` and `f32::cos` call the platform libm, and glibc and the MSVC CRT
 /// round some of these angles to neighbouring ulps, which moves the outlines

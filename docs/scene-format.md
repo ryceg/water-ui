@@ -7,7 +7,7 @@ its seed.
 
 ## `SceneDocumentV1`
 
-Defined in `crates/nocturne-watercolour-infra/src/document.rs`. The domain
+Defined in `crates/water-ui-infra/src/document.rs`. The domain
 types are serde-free; `to_document` / `from_document` are explicit mappers and
 the enums are externally tagged. `parse_scene_json` reads the `version` field
 first and rejects a newer or missing version with a typed error before the
@@ -198,7 +198,7 @@ matches: the bake reads the stage count from `ArtworkCatalogue::stages`, gives
 the strip one frame per stop (seven) and samples it linearly, so strip frame
 `k` is stop `k` and a linear seek on the baked fallback shows the same
 painting. A contact sheet of every stop, light
-and dark, is in `docs/watercolour/hub-scenes/` (one row per stop, 0 at the
+and dark, is in `docs/hub-scenes/` (one row per stop, 0 at the
 top; light ground on the left, dark on the right), regenerated with the
 `render_stops` infra example.
 
@@ -274,8 +274,7 @@ palettes, both surfaces, per-artwork strip frame size). To regenerate or change
 it, edit the manifest and run:
 
 ```bash
-cd src/Web
-pnpm --filter @nocturne/watercolour bake   # curated set (needs a GPU, ~15 s)
+pnpm --filter water-ui bake   # curated set (needs a GPU, ~15 s)
 ```
 
 The same example can bake the whole catalogue (`bake_catalogue <out_dir>`) or

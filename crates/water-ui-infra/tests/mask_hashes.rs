@@ -8,12 +8,12 @@
 //! catalogue authors its outlines with `f32::sin` and `f32::cos`, which call
 //! the platform libm: glibc and the MSVC CRT round some angles to neighbouring
 //! ulps, so the masks, and any hash of them, differ between platforms.
-//! `nocturne-watercolour-core/tests/mask_raster.rs` holds portable hashes.
+//! `water-ui-core/tests/mask_raster.rs` holds portable hashes.
 
-use nocturne_watercolour_core::domain::paint::rasterize_mask_aspect;
-use nocturne_watercolour_core::domain::scene::isotropic_scale;
-use nocturne_watercolour_core::domain::{Background, Mask, Operation, Palette, Point, Seed};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DetailLevel};
+use water_ui_core::domain::paint::rasterize_mask_aspect;
+use water_ui_core::domain::scene::isotropic_scale;
+use water_ui_core::domain::{Background, Mask, Operation, Palette, Point, Seed};
+use water_ui_infra::authoring::{ArtworkCatalogue, DetailLevel};
 
 fn distance_to_segment(px: f32, py: f32, a: Point, b: Point) -> f32 {
     let abx = b.x - a.x;

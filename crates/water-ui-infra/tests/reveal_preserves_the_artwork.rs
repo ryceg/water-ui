@@ -24,12 +24,10 @@
 //! comfortably and to fail an artwork that stops being itself; the numbers
 //! each id actually scores are printed by `--nocapture`.
 
-use nocturne_watercolour_core::application::playback::{
-    DEFAULT_PAINT_WALL_FRACTION, DEFAULT_TICK_BUDGET,
-};
-use nocturne_watercolour_core::application::{CpuEngine, Playback, ProgressCurve, Renderer};
-use nocturne_watercolour_core::domain::{Background, Image, Operation, Palette, Seed};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
+use water_ui_core::application::playback::{DEFAULT_PAINT_WALL_FRACTION, DEFAULT_TICK_BUDGET};
+use water_ui_core::application::{CpuEngine, Playback, ProgressCurve, Renderer};
+use water_ui_core::domain::{Background, Image, Operation, Palette, Seed};
+use water_ui_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
 
 /// Alpha at or above which a pixel counts as part of the artwork at all: the
 /// coverage the pacing gate measures, and the floor under the silhouette cut.
@@ -54,7 +52,7 @@ const MIN_SILHOUETTE_IOU: f32 = 0.82;
 /// order of magnitude above anything here.
 const MAX_BODY_MAE: f32 = 0.02;
 
-fn finished_frame(scene: nocturne_watercolour_core::domain::Scene, edge: u32) -> Image {
+fn finished_frame(scene: water_ui_core::domain::Scene, edge: u32) -> Image {
     let aspect = scene.size_hint.height as f32 / scene.size_hint.width as f32;
     let mut pb = Playback::new(CpuEngine::default(), scene, 1000.0).unwrap();
     pb.finish_immediately().unwrap();
@@ -553,7 +551,7 @@ const KNOWN_EARLY_DRY: &[(&str, f32)] = &[
 ];
 
 /// The share of its ticks at which the sheet last held water.
-fn wet_until(scene: nocturne_watercolour_core::domain::Scene) -> f32 {
+fn wet_until(scene: water_ui_core::domain::Scene) -> f32 {
     let total = scene.timeline.total_ticks;
     let mut pb = Playback::new(CpuEngine::default(), scene, 1000.0)
         .unwrap()

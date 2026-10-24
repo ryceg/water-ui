@@ -7,19 +7,19 @@ use std::task::{Context, Poll, Waker};
 
 use bytemuck::{Pod, Zeroable};
 #[cfg(not(target_arch = "wasm32"))]
-use nocturne_watercolour_core::application::Renderer;
-use nocturne_watercolour_core::application::ports::DabCharge;
-use nocturne_watercolour_core::application::{CheckpointId, EngineError, Simulator};
-use nocturne_watercolour_core::domain::optics::RenderParams;
-use nocturne_watercolour_core::domain::paint::{self, StampParams, StampTarget, WET_THRESHOLD};
-use nocturne_watercolour_core::domain::palette::MAX_PIGMENTS;
-use nocturne_watercolour_core::domain::paper::{
+use water_ui_core::application::Renderer;
+use water_ui_core::application::ports::DabCharge;
+use water_ui_core::application::{CheckpointId, EngineError, Simulator};
+use water_ui_core::domain::optics::RenderParams;
+use water_ui_core::domain::paint::{self, StampParams, StampTarget, WET_THRESHOLD};
+use water_ui_core::domain::palette::MAX_PIGMENTS;
+use water_ui_core::domain::paper::{
     POOL_WEIGHT, PaperTerms, grain_band_window, render_pixel_scale,
 };
-use nocturne_watercolour_core::domain::scene::isotropic_scale;
-use nocturne_watercolour_core::domain::sim::{self, PigmentCoefficients, SimParams};
-use nocturne_watercolour_core::domain::swirl;
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::scene::isotropic_scale;
+use water_ui_core::domain::sim::{self, PigmentCoefficients, SimParams};
+use water_ui_core::domain::swirl;
+use water_ui_core::domain::{
     Dab, Image, MAX_SETTLE_SHARE, Operation, Paper, PaperField, Scene, Seed, SimulationGrid,
     StrokeSpan,
 };
@@ -1751,11 +1751,11 @@ impl GpuEngine {
     }
 
     fn ensure_render_target(&mut self, width: u32, height: u32) -> Result<(), EngineError> {
-        // `NOCTURNE_PAPER_BANDLIMIT=0` renders the pre-band-limited field, so
+        // `WATER_UI_PAPER_BANDLIMIT=0` renders the pre-band-limited field, so
         // before/after PNGs can be produced from the same loaded state. The
         // pixel scale is part of the cache key so toggling it rebuilds the
         // paper at the same output size.
-        let band_limit = std::env::var("NOCTURNE_PAPER_BANDLIMIT")
+        let band_limit = std::env::var("WATER_UI_PAPER_BANDLIMIT")
             .map(|v| v != "0")
             .unwrap_or(true);
         let needs = {

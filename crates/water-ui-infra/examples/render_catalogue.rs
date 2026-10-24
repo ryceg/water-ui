@@ -3,7 +3,7 @@
 //! timings:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example render_catalogue --release -- <out_dir> [id] [palette]
+//! cargo run -p water-ui-infra --example render_catalogue --release -- <out_dir> [id] [palette]
 //! ```
 //!
 //! Large renders at 512 px on the long side, Medium at 160, Small at 48 and
@@ -17,11 +17,11 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use nocturne_watercolour_core::application::{CpuEngine, Exporter, Playback, Renderer, Simulator};
-use nocturne_watercolour_core::domain::{Background, Image, Palette, Rgb, Scene, Seed};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
-use nocturne_watercolour_infra::export::{PngExporter, srgb_to_linear};
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_core::application::{CpuEngine, Exporter, Playback, Renderer, Simulator};
+use water_ui_core::domain::{Background, Image, Palette, Rgb, Scene, Seed};
+use water_ui_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
+use water_ui_infra::export::{PngExporter, srgb_to_linear};
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 const SEED: Seed = Seed(42);
 const DURATION_MS: f32 = 4000.0;

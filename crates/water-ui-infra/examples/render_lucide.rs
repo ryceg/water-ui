@@ -3,7 +3,7 @@
 //! with build and render timings:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example render_lucide --release -- <out_dir> [icon] [palette] [hints.json]
+//! cargo run -p water-ui-infra --example render_lucide --release -- <out_dir> [icon] [palette] [hints.json]
 //! ```
 //!
 //! Before rendering, each icon's flattened subpaths are listed as
@@ -22,14 +22,14 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use nocturne_watercolour_core::application::{CpuEngine, Exporter, Playback, Renderer, Simulator};
-use nocturne_watercolour_core::domain::{Background, Image, Palette, Rgb, Scene, Seed};
-use nocturne_watercolour_infra::authoring::{
+use water_ui_core::application::{CpuEngine, Exporter, Playback, Renderer, Simulator};
+use water_ui_core::domain::{Background, Image, Palette, Rgb, Scene, Seed};
+use water_ui_infra::authoring::{
     ArtworkCatalogue, DetailLevel, FLATTEN_TOLERANCE, IconHints, parse_icon_elements,
     parse_icon_hints, svg_icon_scene,
 };
-use nocturne_watercolour_infra::export::{PngExporter, srgb_to_linear};
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_infra::export::{PngExporter, srgb_to_linear};
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 /// Catalogue ids that read the same object as a Lucide icon in the test set,
 /// so the orchestrator can compare the generated scene against the hand

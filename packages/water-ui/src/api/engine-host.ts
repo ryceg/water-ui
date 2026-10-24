@@ -32,7 +32,7 @@ export const DEFAULT_MAX_LIVE_INSTANCES = 4;
  * absent. The glob is empty in that case and the host reports
  * `EngineUnavailable`, which the player answers with baked/static.
  */
-const wasmGlue = import.meta.glob('../wasm/nocturne_watercolour.js') as Record<string, () => Promise<WasmModule>>;
+const wasmGlue = import.meta.glob('../wasm/water_ui.js') as Record<string, () => Promise<WasmModule>>;
 
 let warnedMissing = false;
 
@@ -41,7 +41,7 @@ async function importBindings(): Promise<WasmModule> {
   if (!loader) {
     if (import.meta.env.DEV && !warnedMissing) {
       warnedMissing = true;
-      console.warn('[watercolour] wasm bindings not built (pnpm --filter @nocturne/watercolour build:wasm); using baked/static artwork');
+      console.warn('[watercolour] wasm bindings not built (pnpm --filter water-ui build:wasm); using baked/static artwork');
     }
     throw new WatercolourError('EngineUnavailable', 'wasm bindings are not built');
   }

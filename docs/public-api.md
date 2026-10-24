@@ -1,6 +1,6 @@
 # Public API
 
-Everything is exported from `@nocturne/watercolour` (`src/Web/packages/watercolour/src/index.ts`).
+Everything is exported from `water-ui` (`packages/water-ui/src/index.ts`).
 The public surface is plain TypeScript; the Svelte components are thin wrappers
 over it.
 
@@ -168,7 +168,7 @@ pipelines shared by every instance (`GpuEngine::fork`). `release` never tears
 the engine down: the compiled pipelines cost more to rebuild than to keep.
 
 ```ts
-import { getEngineHost, configureEngineHost } from '@nocturne/watercolour';
+import { getEngineHost, configureEngineHost } from 'water-ui';
 const host = getEngineHost();
 host.stats();                 // { liveInstances, maxLiveInstances, checkpointBytes, lastStepMs, lastRenderMs, initMs, adapterName }
 host.maxLiveInstances = 4;    // or configureEngineHost({ maxLiveInstances })
@@ -201,7 +201,7 @@ tick (the slice then sizes itself to what is left), and a render only when it ha
 a new tick or an invalidated frame to draw.
 
 ```ts
-import { getScheduler } from '@nocturne/watercolour';
+import { getScheduler } from 'water-ui';
 getScheduler().stats(); // { frames, averageMs, p95Ms, lastMs } frame-time histogram
 ```
 
@@ -214,7 +214,7 @@ per artwork is bundled; a missing palette falls back to it (see
 [scene-format.md](scene-format.md)).
 
 ```ts
-import { assetUrl, defaultPaletteFor, hasBundledAsset } from '@nocturne/watercolour';
+import { assetUrl, defaultPaletteFor, hasBundledAsset } from 'water-ui';
 ```
 
 `assetUrl`, `assetAvailable`, `hasBundledAsset` and `bundledArtworkIds` are

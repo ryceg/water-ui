@@ -7,10 +7,10 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgDir = resolve(here, '..');
-const cratesDir = resolve(pkgDir, '../../../../crates');
+const rootDir = resolve(pkgDir, '../..');
 const outDir = resolve(pkgDir, 'src/wasm');
 const profile = 'wasm-release';
-const wasmPath = resolve(cratesDir, `target/wasm32-unknown-unknown/${profile}/nocturne_watercolour_wasm.wasm`);
+const wasmPath = resolve(rootDir, `target/wasm32-unknown-unknown/${profile}/water_ui_wasm.wasm`);
 
 const run = (cmd, args, cwd) => {
   console.log(`> ${cmd} ${args.join(' ')}`);
@@ -20,11 +20,11 @@ const run = (cmd, args, cwd) => {
 const keepNames = process.env.WATERCOLOUR_WASM_PROFILE === '1';
 const kb = (path) => `${(statSync(path).size / 1024).toFixed(1)} KB`;
 
-run('cargo', ['build', '--profile', profile, '--target', 'wasm32-unknown-unknown', '-p', 'nocturne-watercolour-wasm'], cratesDir);
+run('cargo', ['build', '--profile', profile, '--target', 'wasm32-unknown-unknown', '-p', 'water-ui-wasm'], rootDir);
 mkdirSync(outDir, { recursive: true });
-run('wasm-bindgen', ['--target', 'web', '--out-dir', outDir, '--out-name', 'nocturne_watercolour', wasmPath], pkgDir);
+run('wasm-bindgen', ['--target', 'web', '--out-dir', outDir, '--out-name', 'water_ui', wasmPath], pkgDir);
 
-const bgWasm = resolve(outDir, 'nocturne_watercolour_bg.wasm');
+const bgWasm = resolve(outDir, 'water_ui_bg.wasm');
 console.log(`wasm (cargo):        ${kb(wasmPath)}`);
 console.log(`wasm (wasm-bindgen): ${kb(bgWasm)}`);
 
@@ -39,6 +39,6 @@ if (hasWasmOpt) {
   run('wasm-opt', ['-Os', ...(keepNames ? ['-g'] : []), '--enable-bulk-memory', '--enable-nontrapping-float-to-int', '-o', bgWasm, bgWasm], pkgDir);
   console.log(`wasm (wasm-opt -Os): ${kb(bgWasm)}`);
 }
-if (!existsSync(resolve(outDir, 'nocturne_watercolour.js'))) {
+if (!existsSync(resolve(outDir, 'water_ui.js'))) {
   throw new Error('wasm-bindgen produced no JS glue');
 }

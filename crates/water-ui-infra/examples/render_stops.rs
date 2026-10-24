@@ -2,7 +2,7 @@
 //! dark side by side, one row per stop, as a contact sheet for picking by eye:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example render_stops --release -- <out_dir> <palette> <id>... [--detail large|extralarge] [--width 720]
+//! cargo run -p water-ui-infra --example render_stops --release -- <out_dir> <palette> <id>... [--detail large|extralarge] [--width 720]
 //! ```
 //!
 //! A stop `k` of `n` is the tick `k / n` of the timeline, which is where a
@@ -12,11 +12,11 @@
 use std::fs;
 use std::path::PathBuf;
 
-use nocturne_watercolour_core::application::{Exporter, Playback, Renderer};
-use nocturne_watercolour_core::domain::{Background, Image, Palette, Rgb, Seed};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
-use nocturne_watercolour_infra::export::{PngExporter, srgb_to_linear};
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_core::application::{Exporter, Playback, Renderer};
+use water_ui_core::domain::{Background, Image, Palette, Rgb, Seed};
+use water_ui_infra::authoring::{ArtworkCatalogue, DEFAULT_INTENSITY, DetailLevel};
+use water_ui_infra::export::{PngExporter, srgb_to_linear};
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 const SEED: Seed = Seed(1610);
 const GUTTER: u32 = 12;

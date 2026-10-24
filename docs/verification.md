@@ -1,13 +1,12 @@
 # Verification
 
 What is tested where, what was verified in a browser, and the measured
-performance numbers. The raw figures come from the infra README, the package
-README and `docs/plans/2026-09-17-watercolour-plan.md`; see those for the
-surrounding detail.
+performance numbers. The raw figures come from the infra README and the
+package README; see those for the surrounding detail.
 
 ## Unit and integration tests
 
-### `nocturne-watercolour-core` (std only; no GPU needed)
+### `water-ui-core` (std only; no GPU needed)
 
 | Area | What is asserted |
 |---|---|
@@ -27,7 +26,7 @@ surrounding detail.
 | Playback | `tests/playback.rs`: seek-vs-replay bit-equality, finish-immediately dryness, front-loaded elapsed-time advance, checkpoint bound |
 | Mask raster | `tests/mask_raster.rs`: FNV-1a snapshot of `rasterize_mask_aspect` over 64 synthetic masks, captured from the original code and green on the accelerated one; degenerate polygons (fewer than three points) do not panic |
 
-### `nocturne-watercolour-infra` (GPU tests print and return early without a hardware device)
+### `water-ui-infra` (GPU tests print and return early without a hardware device)
 
 The default run checks `reveal_preserves_the_artwork` on one artwork at `Medium`
 detail and finishes in seconds, debug or release. Its catalogue-wide sweeps at
@@ -35,7 +34,7 @@ detail and finishes in seconds, debug or release. Its catalogue-wide sweeps at
 they once aborted with a native exit code in debug on the reference machine:
 
 ```bash
-cargo test -p nocturne-watercolour-infra --release --test reveal_preserves_the_artwork -- --ignored
+cargo test -p water-ui-infra --release --test reveal_preserves_the_artwork -- --ignored
 ```
 
 | Area | What is asserted |
@@ -48,7 +47,7 @@ cargo test -p nocturne-watercolour-infra --release --test reveal_preserves_the_a
 | Mask hashes | `tests/mask_hashes.rs`: every catalogue `SetMask` at every detail and both grounds, rasterised at the scene's own resolution and aspect, folded into one FNV-1a hash per detail against literals from the original code |
 | Lucide icons | `tests/lucide.rs`: every test-set icon builds a valid scene for every detail and both grounds with the shipped hints; Small is simpler than Large; same inputs build identical scenes; `fill` moves exactly the named subpaths to bodies |
 
-### Web (`@nocturne/watercolour`)
+### Web (`water-ui`)
 
 | Area | What is asserted |
 |---|---|
@@ -72,12 +71,12 @@ cargo test -p nocturne-watercolour-infra --release --test reveal_preserves_the_a
 
 ## The reveal instruments
 
-`nocturne-watercolour-wasm/examples/bloom_frames.rs` exports the `avatar-wash`
+`water-ui-wasm/examples/bloom_frames.rs` exports the `avatar-wash`
 donor used by `bloomScene` and renders authored scene JSON at selected ticks:
 
 ```bash
-cargo run -p nocturne-watercolour-wasm --example bloom_frames --release -- donor donor.json 320
-cargo run -p nocturne-watercolour-wasm --example bloom_frames --release -- render bloom.json bloom-frames 400 150 2,8,16,26,38,52,70,90,115,150,220
+cargo run -p water-ui-wasm --example bloom_frames --release -- donor donor.json 320
+cargo run -p water-ui-wasm --example bloom_frames --release -- render bloom.json bloom-frames 400 150 2,8,16,26,38,52,70,90,115,150,220
 ```
 
 Build `bloom.json` by passing the donor through `bloomScene` with the tile's
@@ -90,20 +89,20 @@ it presented, the refreshes after the first 200 ms that repeated the previous
 frame, and CPU and frame timings:
 
 ```bash
-cargo run -p nocturne-watercolour-wasm --example bloom_cadence --release -- bloom.json
-cargo run -p nocturne-watercolour-wasm --example bloom_cadence --release -- bloom.json --discrete
+cargo run -p water-ui-wasm --example bloom_cadence --release -- bloom.json
+cargo run -p water-ui-wasm --example bloom_cadence --release -- bloom.json --discrete
 ```
 
 With tick blending (`blendTicks`) no refresh after landing should repeat;
 `--discrete` presents whole ticks for comparison.
 
-Two `nocturne-watercolour-infra` examples exist to check the reveal rather
+Two `water-ui-infra` examples exist to check the reveal rather
 than squint at it. Both are CPU-reference by default and take catalogue ids
 and palettes:
 
 ```bash
-cargo run -p nocturne-watercolour-infra --example settle_probe --release -- crescent-moon 20
-cargo run -p nocturne-watercolour-infra --example reveal_timing --release -- <out_dir> crescent-moon moonlight 16
+cargo run -p water-ui-infra --example settle_probe --release -- crescent-moon 20
+cargo run -p water-ui-infra --example reveal_timing --release -- <out_dir> crescent-moon moonlight 16
 ```
 
 **`settle_probe`** (`[id] [every] [gpu]`) prints one row per sampled tick:
@@ -232,7 +231,7 @@ spot checks on the machine above. The repeatable harness is below.
 
 ### Benchmark harness
 
-`packages/watercolour/bench/` builds plain scenario pages (`avatars`, `tabs`,
+`packages/water-ui/bench/` builds plain scenario pages (`avatars`, `tabs`,
 `empty`, `hero`, `drops`, `wash`, `edge`, `mixed`; `?s=<name>&n=<count>`) from
 the package's public components, and `run.mjs` drives them in real Chrome
 through Playwright against a production `vite build` served by `vite preview`.
@@ -240,11 +239,11 @@ It depends on nothing but the package's own source, so it runs against any
 revision of the engine.
 
 ```bash
-pnpm --filter @nocturne/watercolour build:wasm     # needs wasm-opt on PATH (npm i -g binaryen)
-pnpm --filter @nocturne/watercolour bench                                   # all scenarios x all profiles x 3
-pnpm --filter @nocturne/watercolour bench -- --scenarios "avatars&n=80,tabs" --profiles desktop,phone-low --repeats 2
-pnpm --filter @nocturne/watercolour bench -- --no-webgpu --headed --out /tmp/wc
-pnpm --filter @nocturne/watercolour bench -- --url https://paint.nocturne.localhost:59251/ --ignore-https-errors --wait 10
+pnpm --filter water-ui build:wasm     # needs wasm-opt on PATH (npm i -g binaryen)
+pnpm --filter water-ui bench                                   # all scenarios x all profiles x 3
+pnpm --filter water-ui bench -- --scenarios "avatars&n=80,tabs" --profiles desktop,phone-low --repeats 2
+pnpm --filter water-ui bench -- --no-webgpu --headed --out /tmp/wc
+pnpm --filter water-ui bench -- --url https://localhost:5173/ --ignore-https-errors --wait 10
 ```
 
 Profiles are `desktop` (no throttle), `laptop` (CPU 2x), `phone-high` (CPU 4x,
@@ -267,7 +266,7 @@ submit: an approximation of GPU time, not a timestamp query. Compare runs by
 diffing two `summary.json` files.
 
 To attribute main-thread time inside the engine, build the wasm with
-`WATERCOLOUR_WASM_PROFILE=1 pnpm --filter @nocturne/watercolour build:wasm`,
+`WATERCOLOUR_WASM_PROFILE=1 pnpm --filter water-ui build:wasm`,
 which keeps the name section, and record a CPU profile of the scenario (DevTools,
 or CDP `Profiler` from Playwright). Wasm-opt inlines single-caller functions, so
 a function's self time can include a callee that no longer appears by name.
@@ -300,9 +299,6 @@ a function's self time can include a callee that no longer appears by name.
   a reveal there; the largest tier's own grid is 384.
 - **Baked assets stay at their baked detail**; the resolution override applies
   to live mode only.
-- **The host app's `svelte-check` has 46 pre-existing errors** unrelated to this
-  library (stale generated NSwag client, bot api-client, two test/route files);
-  the watercolour integration adds none.
 - **Worker agents could not view images**, so visual verdicts came from the
   coordinator and the vision review, not from the build agents.
 - **Checkpoint buffers live on the GPU only**; no host-side spill.

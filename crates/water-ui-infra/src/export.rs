@@ -1,9 +1,7 @@
 //! PNG export and reveal frame sequences.
 
-use nocturne_watercolour_core::application::{
-    EngineError, Exporter, Playback, Renderer, Simulator,
-};
-use nocturne_watercolour_core::domain::Image;
+use water_ui_core::application::{EngineError, Exporter, Playback, Renderer, Simulator};
+use water_ui_core::domain::Image;
 
 /// Encodes to 8-bit sRGB RGBA PNG. PNG stores straight (non-premultiplied)
 /// alpha, so colour is divided back out of alpha before encoding.

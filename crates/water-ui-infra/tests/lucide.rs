@@ -2,8 +2,8 @@
 //! builds a valid scene for every detail level and both grounds, with the
 //! per-icon hints the web library ships applied.
 
-use nocturne_watercolour_core::domain::{Background, Operation, Palette, Seed};
-use nocturne_watercolour_infra::authoring::{
+use water_ui_core::domain::{Background, Operation, Palette, Seed};
+use water_ui_infra::authoring::{
     DetailLevel, IconHints, parse_icon_elements, parse_icon_hints, svg_icon_scene,
 };
 
@@ -56,7 +56,7 @@ fn hints(name: &str) -> IconHints {
         .unwrap_or_default()
 }
 
-fn elements(name: &str) -> Vec<nocturne_watercolour_infra::authoring::IconNode> {
+fn elements(name: &str) -> Vec<water_ui_infra::authoring::IconNode> {
     let json = std::fs::read_to_string(ICON_JSON).expect("tests/fixtures/lucide-icons.json");
     let data: serde_json::Map<String, serde_json::Value> =
         serde_json::from_str(&json).expect("icon map");
@@ -213,7 +213,7 @@ fn fill_moves_exactly_the_named_subpaths_to_bodies() {
                 ..Default::default()
             },
         );
-        let set_masks = |s: &nocturne_watercolour_core::domain::Scene| {
+        let set_masks = |s: &water_ui_core::domain::Scene| {
             s.timeline
                 .events
                 .iter()

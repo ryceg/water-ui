@@ -1,18 +1,16 @@
 //! Scene construction and export helpers shared by the browser bindings and
 //! the native bake example.
 
-use nocturne_watercolour_core::domain::scene::MAX_CONCENTRATION;
-use nocturne_watercolour_core::domain::{
+use serde::Serialize;
+use water_ui_core::domain::scene::MAX_CONCENTRATION;
+use water_ui_core::domain::{
     Background, Image, Operation, Palette, PaletteEntry, Pigment, PigmentRole, Rgb, Scene, Seed,
     SimResolution,
 };
-use nocturne_watercolour_infra::authoring::ArtworkCatalogue;
-pub use nocturne_watercolour_infra::authoring::DetailLevel;
-use nocturne_watercolour_infra::authoring::{
-    parse_icon_elements, parse_icon_hints, svg_icon_scene,
-};
-use nocturne_watercolour_infra::document::{PaletteDoc, scene_to_json};
-use serde::Serialize;
+use water_ui_infra::authoring::ArtworkCatalogue;
+pub use water_ui_infra::authoring::DetailLevel;
+use water_ui_infra::authoring::{parse_icon_elements, parse_icon_hints, svg_icon_scene};
+use water_ui_infra::document::{PaletteDoc, scene_to_json};
 
 /// Intensity the catalogue scenes are authored at; the baked assets use it.
 pub const DEFAULT_INTENSITY: f32 = 0.7;
@@ -21,11 +19,11 @@ pub const DEFAULT_INTENSITY: f32 = 0.7;
 /// a tail (0 leaves the authored timeline untouched).
 pub const DEFAULT_SETTLE_FRACTION: f32 = 0.3;
 
-/// [`nocturne_watercolour_core::application::apply_settle_fraction`] over the
+/// [`water_ui_core::application::apply_settle_fraction`] over the
 /// scene's timeline, so the browser bindings keep addressing it through the
 /// scene rather than its timeline.
 pub fn apply_settle_fraction(scene: &mut Scene, fraction: f32) {
-    nocturne_watercolour_core::application::apply_settle_fraction(&mut scene.timeline, fraction);
+    water_ui_core::application::apply_settle_fraction(&mut scene.timeline, fraction);
 }
 
 /// Frame-strip limits mirrored by the TypeScript manifest validator.
@@ -453,7 +451,7 @@ impl BakedManifest {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nocturne_watercolour_infra::document::parse_scene_json;
+    use water_ui_infra::document::parse_scene_json;
 
     const LARGE: DetailLevel = DetailLevel::Large;
 
@@ -628,7 +626,7 @@ mod tests {
     #[test]
     fn palette_json_document_is_accepted() {
         let scene = catalogue_scene("wash", Seed(1), "ember", 0.7, LARGE, Surface::Light).unwrap();
-        let doc = nocturne_watercolour_infra::document::to_document(&scene);
+        let doc = water_ui_infra::document::to_document(&scene);
         let json = serde_json::to_string(&doc.palette).unwrap();
         assert_eq!(parse_palette(&json).unwrap(), Palette::ember());
     }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import appendedOperations from '../../../../../../crates/nocturne-watercolour-infra/tests/fixtures/appended-operations.json';
+import appendedOperations from '../../../../crates/water-ui-infra/tests/fixtures/appended-operations.json';
 import type { TimedOp } from '../types';
 import { PackingSuitcase, packingSuitcaseScene } from './packing-suitcase';
 

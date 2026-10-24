@@ -4,7 +4,7 @@ import type { PaletteId } from '../types';
  * A palette's four pigments as the engine draws them.
  *
  * These are the design `r_white` reflectances of `builtin::*` in
- * `crates/nocturne-watercolour-core/src/domain/pigment.rs`, each linear
+ * `crates/water-ui-core/src/domain/pigment.rs`, each linear
  * channel written directly as an sRGB byte. They name the pigment's hue, not
  * the painted pixel: the render maps pigment amount through a saturating
  * optical curve, a surface correction and (on dark grounds) a chroma gain,

@@ -1,6 +1,6 @@
-use nocturne_watercolour_core::domain::paint;
-use nocturne_watercolour_core::domain::sim::{self, PigmentCoefficients, Scratch, SimParams};
-use nocturne_watercolour_core::domain::{
+use water_ui_core::domain::paint;
+use water_ui_core::domain::sim::{self, PigmentCoefficients, Scratch, SimParams};
+use water_ui_core::domain::{
     BrushStroke, Operation, Palette, Paper, PaperField, Point, RadiusProfile, Seed, SimulationGrid,
     StrokeSpan, WaterStroke,
 };

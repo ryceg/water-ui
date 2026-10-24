@@ -1,7 +1,7 @@
 # Pigment and compositing
 
-The optics live in `crates/nocturne-watercolour-core/src/domain/optics.rs`
-(reference) and `crates/nocturne-watercolour-infra/src/gpu/shaders/render.wgsl`
+The optics live in `crates/water-ui-core/src/domain/optics.rs`
+(reference) and `crates/water-ui-infra/src/gpu/shaders/render.wgsl`
 (GPU, a direct port with only f32 transcendental precision as a deviation).
 This page documents the model as implemented, the two output modes and their
 limits, the paper model, and the numerical limits of the simulation.

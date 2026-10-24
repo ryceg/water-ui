@@ -1,0 +1,10 @@
+{
+  "name": "water-ui-workspace",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "build:wasm": "pnpm --filter water-ui build:wasm",
+    "check": "pnpm --filter water-ui check",
+    "test": "pnpm --filter water-ui test"
+  }
+}

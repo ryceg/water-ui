@@ -1,9 +1,10 @@
 {
-  "name": "@nocturne/watercolour",
+  "name": "water-ui",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Watercolour artwork for the Nocturne UI: WebGPU-simulated reveals with baked and static fallbacks",
+  "license": "UNLICENSED",
+  "description": "Watercolour artwork for web UIs: WebGPU-simulated reveals with baked and static fallbacks",
   "exports": {
     ".": {
       "types": "./src/index.ts",

@@ -1,11 +1,11 @@
-# nocturne-watercolour-infra
+# water-ui-infra
 
-See [docs/watercolour/](../../docs/watercolour/README.md) for the full developer documentation of the watercolour library.
+See [docs/](../../docs/README.md) for the full developer documentation of the watercolour library.
 
 Infrastructure for the watercolour engine: a wgpu 30 / WGSL implementation of the
 `Simulator` and `Renderer` ports, versioned serde scene documents, PNG export, a
 reveal frame-sequence helper and the artwork catalogue. Everything platform-specific
-lives here so `nocturne-watercolour-core` stays `std`-only.
+lives here so `water-ui-core` stays `std`-only.
 
 ## Layout
 
@@ -79,7 +79,7 @@ Shared constants (`DRAIN_DEPTH`, `DRAIN_MIN`, `DRAIN_MAX`, `STROKE_WATER_PAPER_G
 `Params` uniform.
 
 Deviations from Curtis are those of the CPU reference and are listed in
-`nocturne_watercolour_core::domain::sim`.
+`water_ui_core::domain::sim`.
 
 ## Measured on this machine
 
@@ -113,10 +113,9 @@ WARP) counts as none.
 ## Running
 
 ```bash
-cd crates
-cargo run -p nocturne-watercolour-infra --example render_native --release -- <out_dir>
-cargo test -p nocturne-watercolour-infra
-cargo test -p nocturne-watercolour-infra --release --test reveal_preserves_the_artwork -- --ignored
+cargo run -p water-ui-infra --example render_native --release -- <out_dir>
+cargo test -p water-ui-infra
+cargo test -p water-ui-infra --release --test reveal_preserves_the_artwork -- --ignored
 ```
 
 The default run checks the reveal gates in `tests/reveal_preserves_the_artwork.rs` on one
@@ -177,7 +176,7 @@ radius written in design units comes out round and the grain stays isotropic on 
 aspect.
 
 ```bash
-cargo run -p nocturne-watercolour-infra --example render_catalogue --release -- <out_dir> [id] [palette]
+cargo run -p water-ui-infra --example render_catalogue --release -- <out_dir> [id] [palette]
 ```
 
 writes `<id>_<small|medium|large|extralarge>_<light|dark>.png` (Small upscaled ×4 nearest for

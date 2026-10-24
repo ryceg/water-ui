@@ -5,7 +5,7 @@
 //! than squinted at:
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example reveal_timing --release -- <out_dir> [id] [palette] [frames] [flags...]
+//! cargo run -p water-ui-infra --example reveal_timing --release -- <out_dir> [id] [palette] [frames] [flags...]
 //! ```
 //!
 //! `FrameSequence` seeks by progress, so it follows the playback's `Reveal`
@@ -45,19 +45,19 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use nocturne_watercolour_core::application::playback::DEFAULT_PAINT_WALL_FRACTION;
-use nocturne_watercolour_core::application::{
+use water_ui_core::application::playback::DEFAULT_PAINT_WALL_FRACTION;
+use water_ui_core::application::{
     CpuEngine, EngineError, Exporter, Playback, ProgressCurve, Renderer, Simulator,
 };
-use nocturne_watercolour_core::domain::optics::RenderParams;
-use nocturne_watercolour_core::domain::sim::SimParams;
-use nocturne_watercolour_core::domain::{Background, Image, Operation, Palette, Rgb, Scene, Seed};
-use nocturne_watercolour_infra::authoring::{
+use water_ui_core::domain::optics::RenderParams;
+use water_ui_core::domain::sim::SimParams;
+use water_ui_core::domain::{Background, Image, Operation, Palette, Rgb, Scene, Seed};
+use water_ui_infra::authoring::{
     ArtworkCatalogue, Choreography, DEFAULT_INTENSITY, DetailLevel, SETTLE_TICK_FRACTION,
     choreograph_scene_with,
 };
-use nocturne_watercolour_infra::export::{FrameSequence, PngExporter, srgb_to_linear};
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_infra::export::{FrameSequence, PngExporter, srgb_to_linear};
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 const SEED: Seed = Seed(42);
 const DURATION_MS: f32 = 3000.0;

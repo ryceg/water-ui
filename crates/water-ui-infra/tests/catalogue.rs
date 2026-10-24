@@ -3,9 +3,9 @@
 
 use std::collections::HashSet;
 
-use nocturne_watercolour_core::application::{CpuEngine, Playback, Renderer};
-use nocturne_watercolour_core::domain::{Background, Palette, Seed, SimResolution};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DetailLevel};
+use water_ui_core::application::{CpuEngine, Playback, Renderer};
+use water_ui_core::domain::{Background, Palette, Seed, SimResolution};
+use water_ui_infra::authoring::{ArtworkCatalogue, DetailLevel};
 
 const EXPECTED_IDS: [&str; 42] = [
     "crescent-moon",

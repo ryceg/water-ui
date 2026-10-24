@@ -1,19 +1,19 @@
 //! Export the bloom's catalogue donor or render an authored scene at selected simulation ticks.
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-wasm --example bloom_frames --release -- donor <out.json> <sim_resolution>
-//! cargo run -p nocturne-watercolour-wasm --example bloom_frames --release -- render <scene.json> <out_dir> <w> <h> <tick,tick,...>
+//! cargo run -p water-ui-wasm --example bloom_frames --release -- donor <out.json> <sim_resolution>
+//! cargo run -p water-ui-wasm --example bloom_frames --release -- render <scene.json> <out_dir> <w> <h> <tick,tick,...>
 //! ```
 
 use std::fs;
 use std::path::PathBuf;
 
-use nocturne_watercolour_core::application::{Exporter, Playback, Renderer};
-use nocturne_watercolour_core::domain::Seed;
-use nocturne_watercolour_infra::document::parse_scene_json;
-use nocturne_watercolour_infra::export::PngExporter;
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
-use nocturne_watercolour_wasm::scene_tools::{
+use water_ui_core::application::{Exporter, Playback, Renderer};
+use water_ui_core::domain::Seed;
+use water_ui_infra::document::parse_scene_json;
+use water_ui_infra::export::PngExporter;
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_wasm::scene_tools::{
     DEFAULT_INTENSITY, DetailLevel, Surface, catalogue_scene_json_with_resolution,
 };
 

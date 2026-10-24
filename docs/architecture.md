@@ -1,7 +1,7 @@
 # Architecture
 
 The engine follows Clean Architecture. The dependency direction is strictly
-inward: domain and application live in `nocturne-watercolour-core` with **zero
+inward: domain and application live in `water-ui-core` with **zero
 dependencies**, infrastructure (wgpu/WGSL, serde documents, export, catalogue)
 depends on core, and the wasm adapter depends on infra. On the web side the
 wasm crate is the adapter and the TypeScript API plus Svelte components plus
@@ -10,13 +10,13 @@ are the presentation layer.
 ```
 domain (pure data + functions)
    ^
-application (ports, CpuEngine, Playback, use cases)   <- nocturne-watercolour-core (std only)
+application (ports, CpuEngine, Playback, use cases)   <- water-ui-core (std only)
    ^
-infrastructure (GpuEngine/WGSL, scene documents, export, catalogue)   <- nocturne-watercolour-infra
+infrastructure (GpuEngine/WGSL, scene documents, export, catalogue)   <- water-ui-infra
    ^
-web adapter (wasm-bindgen)                            <- nocturne-watercolour-wasm
+web adapter (wasm-bindgen)                            <- water-ui-wasm
    ^
-presentation (TS API, Svelte components)    <- @nocturne/watercolour
+presentation (TS API, Svelte components)    <- water-ui
 ```
 
 ## Layers
@@ -27,7 +27,7 @@ presentation (TS API, Svelte components)    <- @nocturne/watercolour
 | Application | `core/src/application/` | The ports a backend implements, the reference `CpuEngine` (ports implemented with domain code), the `Playback` controller, command-style use cases, the `Reveal` timeline builder, and the `choreography` timeline transform. Callers supply elapsed time; nothing here schedules. |
 | Infrastructure | `infra/src/` | `gpu` (wgpu/WGSL `Simulator` + `Renderer`), `document` (serde `SceneDocumentV1`), `export` (PNG, frame sequences), `authoring` (artwork catalogue, Lucide icon authoring in `svg.rs`). Everything platform-specific lives here so core stays `std`-only. |
 | Web adapter | `wasm/src/` | `web.rs`: the wasm-bindgen surface (one shared `WatercolourEngine`, per-scene `SceneInstance`); `scene_tools.rs`: platform-neutral scene construction, intensity, strip stitching, the baked manifest. |
-| Presentation | `src/Web/packages/watercolour/` | `src/api/*.ts` (player, capabilities, engine host, scheduler, mode resolution, baked/static assets, scene documents), `src/components/*.svelte`, baked assets in `assets/`, wasm output in `src/wasm/`. |
+| Presentation | `packages/water-ui/` | `src/api/*.ts` (player, capabilities, engine host, scheduler, mode resolution, baked/static assets, scene documents), `src/components/*.svelte`, baked assets in `assets/`, wasm output in `src/wasm/`. |
 
 ## Ports and use cases
 
@@ -93,7 +93,7 @@ option is the complement (`1 - tail`) of `paintWallFraction`.
 
 ## How the boundary is enforced
 
-- `tests/boundary.rs` in `nocturne-watercolour-core` fails the build if a
+- `tests/boundary.rs` in `water-ui-core` fails the build if a
   `use wgpu|serde|web_sys|js_sys` appears anywhere in `src/`, if `domain/`
   reaches into `application/`, or if `[dependencies]` in the core manifest is
   non-empty.
@@ -243,10 +243,10 @@ checkpoint is released, and if none remain no more are taken. Capacity is
 `min(budget / checkpoint_bytes, 64)` on the GPU (`clamp(.., 1, 64)` on the CPU
 reference, which always keeps tick 0's):
 
-- Native budget 256 MB (`nocturne-watercolour-core`): a checkpoint is
+- Native budget 256 MB (`water-ui-core`): a checkpoint is
   `(10 + 2*pigments) * cells * 4` bytes - 25 MB at 512^2 with 8 pigments
   (10 checkpoints), 4.7 MB at 256^2 with 4 pigments (54).
-- Browser budget 48 MB (`nocturne-watercolour-wasm`, a fraction of the native
+- Browser budget 48 MB (`water-ui-wasm`, a fraction of the native
   budget because several instances share one device and browsers cap GPU
   memory per tab): 10 checkpoints at the catalogue's 256^2 x 4 pigments, about
   44 MB per live instance.
@@ -323,7 +323,7 @@ watchdog Windows resets the display driver at:
 
 ## Future native integration points
 
-`nocturne-watercolour-core` (domain + application) and `-infra` (wgpu + WGSL)
+`water-ui-core` (domain + application) and `-infra` (wgpu + WGSL)
 are portable as-is; the wasm crate is ~400 lines of glue. No Kotlin/UniFFI
 work exists or is planned in this deliverable - a native host would supply a
 backend of the same shape:

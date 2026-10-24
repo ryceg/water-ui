@@ -1,4 +1,4 @@
-//! Bakes the fallback assets `@nocturne/watercolour` ships: the finished
+//! Bakes the fallback assets `water-ui` ships: the finished
 //! frame at 512 and 128 px and a frame strip with its manifest. The shipped
 //! set is driven by a small JSON manifest (`scripts/bake-manifest.json` in the
 //! web package) that lists the artworks, their default palette, both surfaces
@@ -6,8 +6,8 @@
 //! be baked with the same example.
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-wasm --example bake_catalogue --release -- <out_dir> [manifest.json]
-//! cargo run -p nocturne-watercolour-wasm --example bake_catalogue --release -- <out_dir> [artwork-id]
+//! cargo run -p water-ui-wasm --example bake_catalogue --release -- <out_dir> [manifest.json]
+//! cargo run -p water-ui-wasm --example bake_catalogue --release -- <out_dir> [artwork-id]
 //! ```
 //!
 //! With no second argument the whole catalogue is baked (all artworks x all
@@ -35,7 +35,7 @@
 //! exactly the painting after `k` of its stages.
 //!
 //! The PNGs written here are intermediates. `pnpm bake` runs
-//! `src/Web/packages/watercolour/scripts/to-webp.mjs` afterwards, which
+//! `packages/water-ui/scripts/to-webp.mjs` afterwards, which
 //! re-encodes each one as WebP and deletes it, because these washes are mostly
 //! soft alpha and PNG stores that badly: 20 MB becomes 4.4 MB. The shipped
 //! asset set is `.webp`, and that is what the loader asks for.
@@ -45,18 +45,18 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use nocturne_watercolour_core::application::{Exporter, Playback, ProgressCurve, Renderer};
-use nocturne_watercolour_core::domain::{Palette, Seed};
-use nocturne_watercolour_infra::authoring::{
+use serde::Deserialize;
+use water_ui_core::application::{Exporter, Playback, ProgressCurve, Renderer};
+use water_ui_core::domain::{Palette, Seed};
+use water_ui_infra::authoring::{
     ArtworkCatalogue, IconHints, IconNode, parse_icon_elements, parse_icon_hints, svg_icon_scene,
 };
-use nocturne_watercolour_infra::export::{FrameSequence, PngExporter};
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
-use nocturne_watercolour_wasm::scene_tools::{
+use water_ui_infra::export::{FrameSequence, PngExporter};
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_wasm::scene_tools::{
     BakedManifest, DEFAULT_INTENSITY, DetailLevel, Surface, catalogue_ids, catalogue_scene,
     stitch_vertical,
 };
-use serde::Deserialize;
 
 /// Baked assets are keyed by artwork and palette only, so one seed serves
 /// every host; it matches the former showcase's default.

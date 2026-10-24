@@ -1,6 +1,6 @@
-# nocturne-watercolour-core
+# water-ui-core
 
-See [docs/watercolour/](../../docs/watercolour/README.md) for the full developer documentation of the watercolour library.
+See [docs/](../../docs/README.md) for the full developer documentation of the watercolour library.
 
 Platform-independent half of the watercolour graphics engine: the domain model,
 the CPU reference simulation (a simplified Curtis et al. 1997 step), Kubelka-Munk
@@ -59,7 +59,7 @@ Every pixel is rendered as one mixed layer: `Kx = Σ t_k K_k`, `Sx = Σ t_k S_k`
 (deposited plus a fixed share of suspended pigment) mapped through a saturating curve,
 then modulated at output resolution by paper height for granulating pigments. A
 Saunderson surface correction deepens heavy paint and the water film enriches the
-colour while wet; see `docs/watercolour/pigment-and-compositing.md`. With `β = √(Kx² + 2 Kx Sx)`:
+colour while wet; see `docs/pigment-and-compositing.md`. With `β = √(Kx² + 2 Kx Sx)`:
 `R = Sx·sinh(β)/β / (a/b·sinh β + cosh β)`, `T = 1 / (a/b·sinh β + cosh β)`; the
 formulation stays finite as `Sx → 0` and `β` is capped at 40. Layers stack with
 Curtis's two-layer formula (`composite`).
@@ -98,7 +98,7 @@ mode is carried by `Scene::background` (`Transparent` → Subtractive,
 `SimulationGrid::composite_mode` (so checkpoints and every backend read it from the same
 state) and mirrored in `render.wgsl` through the state header. The model, its
 constants' rationale and its tests are documented in
-`docs/watercolour/pigment-and-compositing.md` and the `optics` module doc; the constants
+`docs/pigment-and-compositing.md` and the `optics` module doc; the constants
 are one value, `LUMINOUS_TUNING`, so `render_with_luminous_tuning` can render
 alternatives.
 
@@ -196,8 +196,7 @@ released, and if none remain no more are taken. Capacity is
 ## Tests
 
 ```bash
-cd crates
-cargo test -p nocturne-watercolour-core
+cargo test -p water-ui-core
 ```
 
 Unit tests cover validation, seeding, paper, palettes, stamps, KM (zero thickness is
@@ -216,8 +215,8 @@ adapter implements:
   `apply` (rasterise with `domain::paint`, upload, add), `tick`/`step`, `snapshot`/
   `restore`/`release` with a stated capacity;
 - `Renderer`: resample the sim grid to any output size and run the `optics` rules
-  (the WGSL in `nocturne-watercolour-infra` is a direct port to copy from);
+  (the WGSL in `water-ui-infra` is a direct port to copy from);
 - `Exporter` if the host needs encoded bytes; otherwise consume `Image` directly;
 - a clock: call `Playback::advance_by_elapsed` from the host's frame callback.
 
-`nocturne-watercolour-infra` is the wgpu implementation of exactly that list.
+`water-ui-infra` is the wgpu implementation of exactly that list.

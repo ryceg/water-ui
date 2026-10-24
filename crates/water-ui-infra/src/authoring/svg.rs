@@ -9,10 +9,8 @@
 
 use std::f32::consts::TAU;
 
-use nocturne_watercolour_core::domain::{
-    Background, Palette, Paper, PigmentRole, Point, Scene, Seed,
-};
 use serde::{Deserialize, Serialize};
+use water_ui_core::domain::{Background, Palette, Paper, PigmentRole, Point, Scene, Seed};
 
 use super::geometry::Frame;
 use super::{
@@ -919,7 +917,7 @@ pub fn svg_icon_scene(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nocturne_watercolour_core::domain::Operation;
+    use water_ui_core::domain::Operation;
 
     #[test]
     fn tokenizes_mixed_absolute_and_relative() {

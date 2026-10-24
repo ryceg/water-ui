@@ -1,0 +1,32 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/water-ui-core",
+    "crates/water-ui-infra",
+    "crates/water-ui-wasm",
+]
+
+[workspace.dependencies]
+# Pinned exactly: the wasm-bindgen CLI that generates the JS glue must be the
+# same version as the library.
+wasm-bindgen = "=0.2.128"
+
+# The CPU reference runs hundreds of ticks per test; unoptimised it is an
+# order of magnitude slower than the suite is worth waiting for.
+[profile.dev.package.water-ui-core]
+opt-level = 2
+
+[profile.dev.package.water-ui-infra]
+opt-level = 2
+
+# The browser build (`--profile wasm-release`): size over compile time.
+# `panic = "abort"` would drop the panic hook's messages, which are the only
+# diagnostics a user can paste, so panics stay unwinding.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"
+lto = true
+codegen-units = 1
+
+[profile.release]
+overflow-checks = true

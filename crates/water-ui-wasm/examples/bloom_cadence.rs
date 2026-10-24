@@ -1,16 +1,16 @@
 //! Replays display refreshes through a bloom's paint phase and counts the
 //! distinct frames it presents, blended between ticks or, with `--discrete`,
-//! tick by tick. See `docs/watercolour/verification.md`.
+//! tick by tick. See `docs/verification.md`.
 //!
-//! `cargo run -p nocturne-watercolour-wasm --example bloom_cadence --release -- <scene.json> [--discrete]`
+//! `cargo run -p water-ui-wasm --example bloom_cadence --release -- <scene.json> [--discrete]`
 
 use std::collections::HashSet;
 use std::fs;
 use std::time::Instant;
 
-use nocturne_watercolour_core::application::{Playback, ProgressCurve};
-use nocturne_watercolour_infra::document::parse_scene_json;
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_core::application::{Playback, ProgressCurve};
+use water_ui_infra::document::parse_scene_json;
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 /// `GlucoseTileBloom`'s reveal length and its `tail`.
 const DURATION_MS: f32 = 5200.0;

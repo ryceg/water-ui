@@ -2,7 +2,7 @@
 //! the shared device. The engine's `present` draws the current frame into
 //! it; nothing else touches the swapchain.
 
-use nocturne_watercolour_core::application::EngineError;
+use water_ui_core::application::EngineError;
 
 use super::context::GpuContext;
 

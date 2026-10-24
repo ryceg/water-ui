@@ -1,13 +1,12 @@
 [package]
-name = "nocturne-watercolour-infra"
+name = "water-ui-infra"
 version = "0.1.0"
 edition = "2024"
 description = "Watercolour graphics engine infrastructure: wgpu/WGSL simulation and rendering, versioned scene documents, PNG export, artwork catalogue"
-license = "AGPL-3.0-only"
 publish = false
 
 [dependencies]
-nocturne-watercolour-core = { path = "../nocturne-watercolour-core" }
+water-ui-core = { path = "../water-ui-core" }
 wgpu = { version = "30.0.1", features = ["webgpu"] }
 bytemuck = { version = "1.25", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }

@@ -1,6 +1,6 @@
 import { getContext, hasContext, setContext } from 'svelte';
 
-const KEY = Symbol.for('nocturne.watercolour.drop-group');
+const KEY = Symbol.for('water-ui.drop-group');
 
 /**
  * What a run of surfaces shares.

@@ -1,12 +1,12 @@
 //! Versioned serde documents for scenes, mapped explicitly to and from the
 //! serde-free domain types.
 
-use nocturne_watercolour_core::domain::{
+use serde::{Deserialize, Serialize};
+use water_ui_core::domain::{
     Background, BrushStroke, Dab, LiftStroke, Mask, Operation, Palette, PaletteEntry, Paper,
     Pigment, PigmentRole, Point, RadiusProfile, Rgb, Scene, SceneId, Seed, SimResolution, SizeHint,
     StrokeSpan, Timeline, TimelineEvent, ValidationError, WaterStroke,
 };
-use serde::{Deserialize, Serialize};
 
 pub const CURRENT_VERSION: u32 = 1;
 

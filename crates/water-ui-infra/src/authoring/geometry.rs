@@ -7,8 +7,8 @@
 
 use std::f32::consts::TAU;
 
-use nocturne_watercolour_core::domain::seed::hash2;
-use nocturne_watercolour_core::domain::{Point, Seed, SizeHint};
+use water_ui_core::domain::seed::hash2;
+use water_ui_core::domain::{Point, Seed, SizeHint};
 
 #[derive(Debug, Clone, Copy)]
 pub(super) struct Frame {

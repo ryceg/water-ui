@@ -3,8 +3,8 @@
 //! wet-into-wet passes (reflections, drop-ins) kept to where softness is the
 //! point.
 
-use nocturne_watercolour_core::application::Reveal;
-use nocturne_watercolour_core::domain::{
+use water_ui_core::application::Reveal;
+use water_ui_core::domain::{
     Background, Palette, Paper, PigmentRole, Point, Scene, SceneId, Seed, SimResolution, SizeHint,
 };
 

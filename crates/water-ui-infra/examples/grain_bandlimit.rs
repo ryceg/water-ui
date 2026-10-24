@@ -1,6 +1,6 @@
 //! Renders the `wash` and `moonlit-shoreline` artworks on the GPU with the
 //! render-paper band-limit applied (the shipped path) and without it (the
-//! `NOCTURNE_PAPER_BANDLIMIT=0` toggle, so both frames come from the same
+//! `WATER_UI_PAPER_BANDLIMIT=0` toggle, so both frames come from the same
 //! loaded state), writing `<scene>_<long_edge>_{before,after2}.png`, and
 //! prints two metrics over the painted area for each size:
 //!
@@ -10,20 +10,20 @@
 //!   the per-pixel speckle measure.
 //!
 //! ```text
-//! cargo run -p nocturne-watercolour-infra --example grain_bandlimit --release -- <out_dir>
+//! cargo run -p water-ui-infra --example grain_bandlimit --release -- <out_dir>
 //! ```
 
 use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-use nocturne_watercolour_core::application::{CpuEngine, Exporter, Playback, Renderer, Simulator};
-use nocturne_watercolour_core::domain::optics::RenderParams;
-use nocturne_watercolour_core::domain::paper::{PaperField, render_pixel_scale};
-use nocturne_watercolour_core::domain::{Image, Palette, Scene, Seed, SimResolution};
-use nocturne_watercolour_infra::authoring::{ArtworkCatalogue, DetailLevel};
-use nocturne_watercolour_infra::export::PngExporter;
-use nocturne_watercolour_infra::gpu::{GpuContext, GpuEngine};
+use water_ui_core::application::{CpuEngine, Exporter, Playback, Renderer, Simulator};
+use water_ui_core::domain::optics::RenderParams;
+use water_ui_core::domain::paper::{PaperField, render_pixel_scale};
+use water_ui_core::domain::{Image, Palette, Scene, Seed, SimResolution};
+use water_ui_infra::authoring::{ArtworkCatalogue, DetailLevel};
+use water_ui_infra::export::PngExporter;
+use water_ui_infra::gpu::{GpuContext, GpuEngine};
 
 const SEED: Seed = Seed(42);
 const DURATION_MS: f32 = 4000.0;
@@ -133,11 +133,11 @@ fn measure(
         let aspect = scene.aspect();
         // SAFETY: single-threaded example; nothing else reads or writes this
         // variable while it is being toggled.
-        unsafe { env::remove_var("NOCTURNE_PAPER_BANDLIMIT") };
+        unsafe { env::remove_var("WATER_UI_PAPER_BANDLIMIT") };
         let after = engine.render(w, h).expect("render with band-limit");
-        unsafe { env::set_var("NOCTURNE_PAPER_BANDLIMIT", "0") };
+        unsafe { env::set_var("WATER_UI_PAPER_BANDLIMIT", "0") };
         let before = engine.render(w, h).expect("render without band-limit");
-        unsafe { env::remove_var("NOCTURNE_PAPER_BANDLIMIT") };
+        unsafe { env::remove_var("WATER_UI_PAPER_BANDLIMIT") };
 
         write_png(out_dir, &format!("{name}_{w}_after2.png"), &after);
         write_png(out_dir, &format!("{name}_{w}_before.png"), &before);

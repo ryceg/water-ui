@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use nocturne_watercolour_core::application::EngineError;
+use water_ui_core::application::EngineError;
 
 use super::surface::PresentSurface;
 
@@ -64,7 +64,7 @@ impl GpuContext {
         let info = adapter.get_info();
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
-                label: Some("nocturne-watercolour"),
+                label: Some("water-ui"),
                 required_features: adapter.features() & wgpu::Features::TIMESTAMP_QUERY,
                 required_limits: wgpu::Limits::default(),
                 ..Default::default()
