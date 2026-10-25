@@ -226,6 +226,13 @@ export const DEFAULT_TAIL = 0.8;
 export const DEFAULT_REVEAL_MS = 420;
 /** The settle runs past the spread, so the mark is still gaining pigment when it stops moving. */
 export const REVEAL_SETTLE_RATIO = 1.45;
+/**
+ * How long a state accent (`PaintedUnderline`, `SelectionEdge`) takes to paint
+ * and dry, in ms. It answers a click, so like {@link DEFAULT_REVEAL_MS} it
+ * cannot take a hero's 3 s: at that pace the underline's stroke took 300 ms to
+ * cross the tab. Its paint phase is the first fifth.
+ */
+export const ACCENT_DURATION_MS = 1200;
 
 /**
  * The natural width/height ratio of each catalogue artwork, from the baked

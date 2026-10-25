@@ -32,7 +32,7 @@ export type {
   TimedOp,
   LiveClock,
 } from './types';
-export { ARTWORK_IDS, PALETTE_IDS, DEFAULT_INTENSITY, DEFAULT_DURATION_MS, DEFAULT_TAIL, DEFAULT_REVEAL_MS, REVEAL_SETTLE_RATIO, ARTWORK_ASPECT, artworkAspect, seedFromName, detailForEdge } from './types';
+export { ARTWORK_IDS, PALETTE_IDS, DEFAULT_INTENSITY, DEFAULT_DURATION_MS, DEFAULT_TAIL, DEFAULT_REVEAL_MS, REVEAL_SETTLE_RATIO, ACCENT_DURATION_MS, ARTWORK_ASPECT, artworkAspect, seedFromName, detailForEdge } from './types';
 
 export { createArtworkPlayer } from './api/playback';
 export type { ArtworkPlayer, PlayerOptions, PlayerProgressCallback, PlayerState, PlayerEvent, FallbackDetail } from './api/playback';

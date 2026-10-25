@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { brushworkMs, dropScene, strokeFrame } from './drop-scene';
+import { brushworkMs, dropScene, penSpan, strokeFrame } from './drop-scene';
 import { type DropMark, bleedFor, fitMark, glazeStroke, washStroke } from './drop-stroke';
 
 /** A donor the shape of a real catalogue document, with a recognisable palette order. */
@@ -74,6 +74,19 @@ describe('strokeFrame', () => {
     const m = bleedFor(900, 400);
     expect(f.w / f.h <= 3 + 1e-6 || f.h >= 400 + 2 * m - 1e-6).toBe(true);
     expect(f.h).toBeGreaterThan(12 * 4);
+  });
+});
+
+describe('penSpan', () => {
+  it('tiles the stroke, gathering speed as the pen lands and slowing as it lifts', () => {
+    const spans = Array.from({ length: 12 }, (_, i) => penSpan(i, 12));
+    expect(spans[0]![0]).toBe(0);
+    expect(spans.at(-1)![1]).toBe(1);
+    spans.slice(1).forEach((s, i) => expect(s[0]).toBe(spans[i]![1]));
+    const lengths = spans.map(([a, b]) => b - a);
+    expect(Math.max(...lengths)).toBeGreaterThan(1 / 12);
+    expect(lengths[0]).toBeLessThan(1 / 12);
+    expect(lengths.at(-1)).toBeLessThan(1 / 12);
   });
 });
 

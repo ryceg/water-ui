@@ -142,6 +142,23 @@ const MAX_SWEEP_STEPS = 12;
  */
 const PEN_SPEED = 3;
 
+/**
+ * Where the pen is along a stroke `t` of the way through its laydown: it
+ * gathers speed as it lands and slows as it lifts. The engine's `pen_travel`
+ * is the same curve. A catalogue stroke has spare ticks, so the engine spaces
+ * its even spans by it; a drop lays one span a tick, so the curve sizes the
+ * spans instead.
+ */
+export function penTravel(t: number): number {
+  if (t >= 1) return 1;
+  const [v0, v1] = [0.5, 0.5];
+  const x = Math.max(0, t);
+  return x * (v0 + x * (3 - 2 * v0 - v1 + x * (v0 + v1 - 2)));
+}
+
+/** The span of step `i` of a stroke laid in `steps`, one a tick, eased by {@link penTravel}. */
+export const penSpan = (i: number, steps: number): [number, number] => [penTravel(i / steps), penTravel((i + 1) / steps)];
+
 const pathLength = (path: readonly { x: number; y: number }[]) =>
   path.slice(1).reduce((sum, p, i) => sum + Math.hypot(p.x - path[i]!.x, p.y - path[i]!.y), 0);
 
@@ -283,7 +300,7 @@ export function dropScene(
    */
   const soft = (base: number, r: number) => base * Math.min(1, MAX_RADIUS / Math.max(r, 1e-6));
   /** `span` for step `i` of `steps`, or none for a stroke laid down whole. */
-  const spanOf = (i: number, steps: number) => (steps > 1 ? { span: [i / steps, (i + 1) / steps] } : {});
+  const spanOf = (i: number, steps: number) => (steps > 1 ? { span: penSpan(i, steps) } : {});
   /**
    * A stroke or a wet dab: water first, pigment into it, a darker drop at the
    * head. A drawn stroke is laid in `steps` spans along its path, one a tick,

@@ -1,7 +1,7 @@
 import type { CropWindow, Surface } from '../types';
 import { DEFAULT_INTENSITY } from '../types';
 import type { WasmModule } from './wasm-types';
-import { MAX_FRAME_ASPECT, dropSimResolution } from './drop-scene';
+import { MAX_FRAME_ASPECT, dropSimResolution, penTravel } from './drop-scene';
 import { seededRandom } from './random';
 
 export interface ReportWashOptions {
@@ -110,16 +110,27 @@ export function reportWashScene(
   }
   let lastTick = 0;
   for (const [i, { y, radius, x0, x1, sag }] of passes.entries()) {
-    let tick = 1 + i * PASS_STAGGER_TICKS;
-    for (const [k, load] of LOAD.entries()) {
-      const t0 = k / LOAD.length;
-      const t1 = (k + 1) / LOAD.length;
-      const steps = Math.max(1, Math.round((SWEEP_TICKS * (t1 - t0) * (x1 - x0)) / width));
-      const stroke = path(x0, x1, y, sag, t0, t1);
-      const taper = (at: number) => radius * (1 - 0.45 * (at / LOAD.length));
-      for (let s = 0; s < steps; s++) {
+    const start = 1 + i * PASS_STAGGER_TICKS;
+    const thirds = LOAD.map((load, k) => ({
+      load,
+      t0: k / LOAD.length,
+      t1: (k + 1) / LOAD.length,
+      stroke: path(x0, x1, y, sag, k / LOAD.length, (k + 1) / LOAD.length),
+      steps: Math.max(1, Math.round((SWEEP_TICKS * (x1 - x0)) / LOAD.length / width)),
+    }));
+    // The pen's pace is eased over the whole pass, not each third, so a step
+    // can end one third and start the next on the same tick.
+    const steps = thirds.reduce((sum, third) => sum + third.steps, 0);
+    const taper = (at: number) => radius * (1 - 0.45 * (at / LOAD.length));
+    for (let s = 0; s < steps; s++) {
+      const from = penTravel(s / steps);
+      const to = penTravel((s + 1) / steps);
+      for (const [k, { load, t0, t1, stroke }] of thirds.entries()) {
+        const lo = Math.max(from, t0);
+        const hi = Math.min(to, t1);
+        if (hi <= lo) continue;
         events.push({
-          at_tick: tick + s,
+          at_tick: start + s,
           op: {
             brush: {
               path: stroke,
@@ -128,14 +139,13 @@ export function reportWashScene(
               concentration: conc(0.3 * load),
               water: water(1),
               softness: 0.75,
-              ...(steps > 1 ? { span: [s / steps, (s + 1) / steps] } : {}),
+              span: [(lo - t0) / (t1 - t0), (hi - t0) / (t1 - t0)],
             },
           },
         });
       }
-      tick += steps;
     }
-    lastTick = Math.max(lastTick, tick);
+    lastTick = Math.max(lastTick, start + steps);
   }
   const pools = 2 + Math.floor(random() * 2);
   for (let i = 0; i < pools; i++) {
