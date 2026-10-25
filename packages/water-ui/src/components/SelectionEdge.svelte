@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ArtworkOptions, FitMode, Surface } from '../types';
+  import { ACCENT_DURATION_MS, type ArtworkOptions, type FitMode, type Surface } from '../types';
   import { type PlayerReadyCallback, artworkOptionsFrom, mountPlayer } from './helpers';
 
   let {
@@ -36,7 +36,7 @@
       canvas,
       {
         artwork: 'selection-edge',
-        ...artworkOptionsFrom({ palette, seed, intensity, durationMs, motion, quality, mode }, { autoplay: 'once' }),
+        ...artworkOptionsFrom({ palette, seed, intensity, durationMs, motion, quality, mode }, { autoplay: 'once', durationMs: ACCENT_DURATION_MS }),
         fit: fit ?? 'fill',
         surface,
         releaseAfterFinish: true,
@@ -49,9 +49,7 @@
 <span
   bind:this={frame}
   aria-hidden="true"
-  class="pointer-events-none absolute transition-opacity duration-300 {side === 'left'
-    ? 'inset-y-0 left-0 w-4'
-    : 'inset-x-0 top-0 h-4'} {active ? 'opacity-100' : 'opacity-0'} {className}"
+  class="pointer-events-none absolute {side === 'left' ? 'inset-y-0 left-0 w-4' : 'inset-x-0 top-0 h-4'} {className}"
 >
   {#if active}
     <canvas bind:this={canvas} class="block h-full w-full"></canvas>

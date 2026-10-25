@@ -148,6 +148,10 @@ impl ArtworkCatalogue {
     /// How many equal stages `id` is painted in (see [`Stages`]), or `None`
     /// for an artwork revealed in one go. A staged artwork is stepped through
     /// with a linear seek to `k / stages`, one stage per step.
+    /// State accents that show colour from the first tick, so their pre-wet
+    /// does not hold the pen; see [`Choreography::water_holds_pen`].
+    pub const PAINTS_AT_ONCE: &[&str] = &["selection-edge"];
+
     pub fn stages(id: &str) -> Option<u32> {
         hub::IDS.contains(&id).then_some(hub::STOPS)
     }
@@ -212,10 +216,14 @@ impl ArtworkCatalogue {
             sim_resolution,
         )?;
         let style = style_for(seed, intensity, detail, background, sim_resolution);
+        let choreography = Choreography {
+            water_holds_pen: !Self::PAINTS_AT_ONCE.contains(&id),
+            ..style.choreography()
+        };
         if let Some(stages) = Self::stages(id) {
-            choreograph_stages(&mut scene.timeline, &style.choreography(), stages);
+            choreograph_stages(&mut scene.timeline, &choreography, stages);
         } else {
-            choreograph_scene(&mut scene, &style.choreography());
+            choreograph_scene(&mut scene, &choreography);
         }
         Some(scene)
     }

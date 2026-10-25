@@ -52,6 +52,12 @@ pub struct Choreography {
     pub stroke_overlap: f32,
     /// Upper bound on `total_ticks` growth, as a multiple.
     pub max_stretch: f32,
+    /// Whether the pen waits for a clear-water stroke before moving on. A
+    /// pre-wet drawn at the pen's pace holds back every pigment stroke after
+    /// it, which suits an artwork drawn as an illustration but leaves a state
+    /// accent blank for half its paint phase (`selection-edge`). Without it,
+    /// water is laid over [`MIN_WINDOW`] while the next stroke starts.
+    pub water_holds_pen: bool,
 }
 
 impl Default for Choreography {
@@ -61,6 +67,7 @@ impl Default for Choreography {
             max_steps: 12,
             stroke_overlap: 0.15,
             max_stretch: 2.5,
+            water_holds_pen: true,
         }
     }
 }
@@ -80,10 +87,12 @@ fn path_length(path: &[Point]) -> f32 {
 
 /// The pen's cost of a stroke: its path length plus its widest radius, so a
 /// dab is short but not zero and a long sweep takes proportionally longer.
-fn stroke_weight(op: &Operation) -> f32 {
+/// Water that does not hold the pen costs nothing.
+fn stroke_weight(params: &Choreography, op: &Operation) -> f32 {
     match op {
         Operation::Brush(s) => path_length(&s.path) + s.radius.max(),
         Operation::Dab(s) => s.radius,
+        Operation::Water(_) if !params.water_holds_pen => 0.0,
         Operation::Water(s) => path_length(&s.path) + s.radius.max(),
         Operation::Lift(s) => path_length(&s.path) + s.radius.max(),
         _ => 0.0,
@@ -117,6 +126,12 @@ fn paint_end_of(timeline: &Timeline) -> u32 {
                 .map(|e| e.at_tick)
         })
         .unwrap_or(timeline.total_ticks)
+}
+
+/// Whether the pen waits for the stroke before moving on; see
+/// [`Choreography::water_holds_pen`].
+fn holds_pen(params: &Choreography, op: &Operation) -> bool {
+    params.water_holds_pen || !matches!(op, Operation::Water(_))
 }
 
 /// The narrowest laydown window a stroke may be given, so even a dab that
@@ -155,7 +170,7 @@ struct SequenceWalk {
 }
 
 impl SequenceWalk {
-    fn stroke(&mut self, params: &Choreography, window: u32) {
+    fn stroke(&mut self, params: &Choreography, window: u32, holds_pen: bool) {
         let steps = steps_for(params, window);
         // The furthest any stroke has reached, not the furthest this one did.
         // Strokes overlap, so a dab drawn after a long sweep finishes earlier
@@ -164,7 +179,9 @@ impl SequenceWalk {
         // would drop the stencil while the sweep was still being laid.
         let reach = self.cursor + laydown_offset(window, steps, steps - 1) + 1;
         self.footprint = self.footprint.max(reach);
-        self.cursor += stroke_advance(params, window);
+        if holds_pen {
+            self.cursor += stroke_advance(params, window);
+        }
     }
 
     /// A non-stroke op lands where the pen has reached: every stroke before
@@ -193,7 +210,7 @@ fn sequence_footprint(
         .events
         .iter()
         .filter(|e| e.at_tick <= paint_end)
-        .map(|e| stroke_weight(&e.op))
+        .map(|e| stroke_weight(params, &e.op))
         .sum();
     let mut walk = SequenceWalk::default();
     for e in &timeline.events {
@@ -201,8 +218,8 @@ fn sequence_footprint(
             break;
         }
         if is_stroke(&e.op) {
-            let window = laydown_window(params, budget, stroke_weight(&e.op), total_weight);
-            walk.stroke(params, window);
+            let window = laydown_window(params, budget, stroke_weight(params, &e.op), total_weight);
+            walk.stroke(params, window, holds_pen(params, &e.op));
         } else {
             walk.boundary();
         }
@@ -256,7 +273,7 @@ fn build_sequence(
         .events
         .iter()
         .filter(|e| e.at_tick <= paint_end)
-        .map(|e| stroke_weight(&e.op))
+        .map(|e| stroke_weight(params, &e.op))
         .sum();
     let mut out = Timeline::new(total);
     let mut walk = SequenceWalk::default();
@@ -274,10 +291,10 @@ fn build_sequence(
             push_clamped(&mut out, walk.boundary(), e.op.clone(), total);
             continue;
         }
-        let window = laydown_window(params, budget, stroke_weight(&e.op), total_weight);
+        let window = laydown_window(params, budget, stroke_weight(params, &e.op), total_weight);
         if matches!(e.op, Operation::Dab(_)) {
             push_clamped(&mut out, walk.cursor, e.op.clone(), total);
-            walk.stroke(params, window);
+            walk.stroke(params, window, true);
             continue;
         }
         let steps = steps_for(params, window);
@@ -313,13 +330,67 @@ fn build_sequence(
             };
             push_clamped(&mut out, tick, op, total);
         }
-        walk.stroke(params, window);
+        walk.stroke(params, window, holds_pen(params, &e.op));
     }
     out
 }
 
+/// The tick, from the stroke's start, its `step` of `steps` lands on in a
+/// laydown of `laydown` ticks. The spans are even, so the pen's pace is in
+/// the spacing: each step lands when [`pen_travel`] reaches it, at least a
+/// tick after the one before. Easing the span lengths instead would put more
+/// paint on the paper per tick mid-stroke, and a hatched wash spread further
+/// for it: `distant-mountains` arrived a fifth sooner.
+///
+/// The first and last steps keep their even-paced ticks, so a stroke reaches
+/// as far as it did and the boundaries waiting on it do not move.
 fn laydown_offset(laydown: u32, steps: u32, step: u32) -> u32 {
-    (step as f32 * laydown as f32 / steps as f32).round() as u32
+    let last = steps.saturating_sub(1);
+    let even = |k: u32| (k as f32 * laydown as f32 / steps as f32).round() as u32;
+    if last == 0 {
+        return even(step);
+    }
+    let reach = even(last) as f32;
+    let scale = reach / pen_time(last as f32 / steps as f32);
+    let mut tick = 0;
+    for k in 1..=step {
+        let at = (pen_time(k as f32 / steps as f32) * scale).round() as u32;
+        tick = at.max(tick + 1);
+    }
+    // Room left for the steps after this one, a tick each, before the last.
+    tick.min(even(last).saturating_sub(last - step)).max(step)
+}
+
+/// The pen's speed where it lands and where it lifts, as shares of an even
+/// pace: it gathers speed as it lands and slows as it lifts. A lift slower
+/// than the landing put `overlapping-shapes` past the reveal's pacing gate.
+const PEN_LANDING_SPEED: f32 = 0.5;
+const PEN_LIFT_SPEED: f32 = 0.5;
+
+/// Where the pen is along a stroke `t` of the way through its laydown: the
+/// cubic from 0 to 1 with the landing and lift speeds as its end slopes.
+fn pen_travel(t: f32) -> f32 {
+    let (v0, v1) = (PEN_LANDING_SPEED, PEN_LIFT_SPEED);
+    if t >= 1.0 {
+        return 1.0;
+    }
+    let t = t.max(0.0);
+    t * (v0 + t * ((3.0 - 2.0 * v0 - v1) + t * (v0 + v1 - 2.0)))
+}
+
+/// The share of a laydown the pen takes to travel `x` of the stroke: the
+/// inverse of [`pen_travel`], by bisection, since the cubic is monotonic.
+fn pen_time(x: f32) -> f32 {
+    let (mut lo, mut hi) = (0.0f32, 1.0f32);
+    for _ in 0..24 {
+        let mid = 0.5 * (lo + hi);
+        if pen_travel(mid) < x {
+            lo = mid;
+        } else {
+            hi = mid;
+        }
+    }
+    0.5 * (lo + hi)
 }
 
 fn span_for(steps: u32, step: u32) -> StrokeSpan {
@@ -341,6 +412,7 @@ mod tests {
         max_steps: 12,
         stroke_overlap: 0.15,
         max_stretch: 2.5,
+        water_holds_pen: true,
     };
 
     /// The spans one stroke of `weight` is cut into, given the budget the
@@ -454,6 +526,77 @@ mod tests {
         assert_eq!(laid.last().unwrap().1.span.end, 1.0);
 
         assert_eq!(out.total_ticks, 200, "one stroke fits without stretching");
+    }
+
+    #[test]
+    fn the_pen_spaces_its_steps_wider_where_it_lands_and_lifts() {
+        let ticks: Vec<u32> = (0..12).map(|i| laydown_offset(48, 12, i)).collect();
+        let gaps: Vec<u32> = ticks.windows(2).map(|w| w[1] - w[0]).collect();
+        assert_eq!(ticks[0], 0);
+        assert!(
+            gaps.iter().all(|&g| g >= 1),
+            "one step a tick at most: {ticks:?}"
+        );
+        let middle = gaps[gaps.len() / 2];
+        assert!(
+            gaps[0] > middle && gaps[gaps.len() - 1] > middle,
+            "{gaps:?}"
+        );
+        let tight: Vec<u32> = (0..12).map(|i| laydown_offset(12, 12, i)).collect();
+        assert_eq!(
+            tight,
+            (0..12).collect::<Vec<_>>(),
+            "no room to ease, one a tick"
+        );
+    }
+
+    #[test]
+    fn the_pen_gathers_speed_as_it_lands_and_slows_as_it_lifts() {
+        let samples: Vec<f32> = (0..=100).map(|i| pen_travel(i as f32 / 100.0)).collect();
+        assert_eq!((samples[0], samples[100]), (0.0, 1.0));
+        assert!(
+            samples.windows(2).all(|w| w[1] > w[0]),
+            "the pen never stops or turns back"
+        );
+        let first = samples[1] - samples[0];
+        let middle = samples[51] - samples[50];
+        let last = samples[100] - samples[99];
+        assert!(middle > first && middle > last, "{first} {middle} {last}");
+    }
+
+    #[test]
+    fn a_pre_wet_can_leave_the_pigment_to_start_at_once() {
+        let mut src = Timeline::new(200);
+        src.push(
+            0,
+            Operation::Water(WaterStroke {
+                path: line(Point::new(0.0, 0.0), Point::new(0.0, 1.0)),
+                radius: RadiusProfile::uniform(1.0),
+                water: 1.0,
+                softness: 1.0,
+                span: StrokeSpan::FULL,
+            }),
+        );
+        src.push(
+            1,
+            brush(line(Point::new(0.0, 0.0), Point::new(0.0, 0.4)), 0.5, 0.8),
+        );
+        src.push(150, Operation::Dry { rate: 3.0 });
+        let held = choreograph(&src, &PARAMS);
+        assert!(brushes(&held)[0].0 > 0, "by default the pen wets first");
+        let params = Choreography {
+            water_holds_pen: false,
+            ..PARAMS
+        };
+        let out = choreograph(&src, &params);
+        let wet = waters(&out);
+        assert_eq!(
+            wet.len() as u32,
+            MIN_WINDOW,
+            "the whole sheet is wetted at once"
+        );
+        assert_eq!(wet.last().unwrap().1.span.end, 1.0);
+        assert_eq!(brushes(&out)[0].0, 0, "the pigment starts with the water");
     }
 
     /// Every laydown carries the authored amounts and the authored radius:
