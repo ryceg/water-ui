@@ -13,6 +13,7 @@ components.
 | `crates/water-ui-core/` | Domain model, CPU reference simulation, Kubelka-Munk optics, playback. `std` only, no dependencies. |
 | `crates/water-ui-infra/` | wgpu/WGSL simulation and rendering, scene documents, PNG export, the artwork catalogue and Lucide icon authoring. |
 | `crates/water-ui-wasm/` | wasm-bindgen web adapter. |
+| `crates/water-ui-android/` | JNI Android adapter: Vulkan device, instances rendered into bitmaps, and its Kotlin binding. See [docs/android.md](docs/android.md). |
 | `packages/water-ui/` | The `water-ui` npm package: TypeScript API, Svelte components, baked assets, bench harness. |
 | `site/` | The showcase site: Vite + Svelte 5, deployed to GitHub Pages by `.github/workflows/pages.yml`. `pnpm site` runs it locally after `pnpm build:wasm`. |
 | `docs/` | Architecture, scene format, pigment model, public API, verification. Start at [docs/README.md](docs/README.md). |

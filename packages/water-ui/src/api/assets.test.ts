@@ -21,7 +21,7 @@ describe('curated bundle', () => {
   });
 
   it('bakes exactly the artworks the manifest lists', async () => {
-    const manifestIds = manifest.artworks.map((a) => assetId(a.id)).sort();
+    const manifestIds = [...new Set(manifest.artworks.map((a) => assetId(a.id)))].sort();
     expect(await bundledArtworkIds()).toEqual(manifestIds);
     for (const id of manifestIds) {
       expect(DEFAULT_PALETTE[id]).toBeDefined();
@@ -29,10 +29,23 @@ describe('curated bundle', () => {
     }
   });
 
+  // An artwork's first entry is its default palette; a later entry for the
+  // same id bakes an extra palette a host asks for by name (tab-underline in
+  // water, for navigation).
   it('keeps the manifest palettes in sync with DEFAULT_PALETTE', () => {
+    const seen = new Set<string>();
     for (const artwork of manifest.artworks) {
-      expect(DEFAULT_PALETTE[assetId(artwork.id)]).toBe(artwork.palette);
+      const id = assetId(artwork.id);
+      if (!seen.has(id)) expect(DEFAULT_PALETTE[id]).toBe(artwork.palette);
+      else expect(artwork.palette).not.toBe(DEFAULT_PALETTE[id]);
+      seen.add(id);
     }
+  });
+
+  it('serves an extra palette from its own set, not the default', async () => {
+    expect(bundledUrl({ id: 'tab-underline', palette: 'water' }, 'strip.webp')).toContain('/tab-underline/water/');
+    expect(bundledUrl({ id: 'tab-underline', palette: 'water', surface: 'dark' }, 'strip.webp')).toContain('/tab-underline/water_dark/');
+    expect(bundledUrl({ id: 'tab-underline' }, 'strip.webp')).toContain('/tab-underline/ember/');
   });
 
   /**

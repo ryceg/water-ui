@@ -17,6 +17,7 @@ described in Curtis, Banks and Beier 1997, *Computer-Generated Watercolor*
 | `crates/water-ui-core/` | Domain model, CPU reference simulation, Kubelka-Munk optics, application ports and use cases. `std`-only. |
 | `crates/water-ui-infra/` | wgpu/WGSL simulation and rendering, versioned serde scene documents, PNG export, the artwork catalogue, Lucide icon authoring (`authoring/svg.rs`). |
 | `crates/water-ui-wasm/` | wasm-bindgen web adapter (thin). |
+| `crates/water-ui-android/` | JNI Android adapter (thin) and its Kotlin binding: [android.md](android.md). |
 | `packages/water-ui/` | `water-ui` - the TypeScript API, Svelte components, baked/static assets, wasm output, per-icon hints (`src/api/icon-hints.ts`). `lucide` is a peer dependency: hosts supply icon element lists. |
 
 ## What is where
@@ -32,6 +33,9 @@ described in Curtis, Banks and Beier 1997, *Computer-Generated Watercolor*
 - **Public API** - the TypeScript API, the Svelte components, mode/motion
   resolution, resource limits, and a host-app example:
   [public-api.md](public-api.md)
+- **Android** - the JNI adapter, its Kotlin binding, the bitmap pixel
+  format, the build and how a host mirrors the web's mode chain:
+  [android.md](android.md)
 - **Verification** - what is tested where, measured performance, known
   limitations: [verification.md](verification.md)
 - **Provenance and licences** - the independent-implementation statement and

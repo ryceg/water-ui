@@ -4,6 +4,7 @@ members = [
     "crates/water-ui-core",
     "crates/water-ui-infra",
     "crates/water-ui-wasm",
+    "crates/water-ui-android",
 ]
 
 [workspace.dependencies]
@@ -30,3 +31,13 @@ codegen-units = 1
 
 [profile.release]
 overflow-checks = true
+
+# The Android build (`cargo ndk ... build --profile android-release`): an app
+# ships one copy per ABI, so link-time optimisation and stripped symbols pay
+# for themselves. Panics stay unwinding: the JNI layer turns them into
+# exceptions instead of aborting the app.
+[profile.android-release]
+inherits = "release"
+lto = true
+codegen-units = 1
+strip = true

@@ -248,6 +248,11 @@ the same rule: `iconAssetKey(name)` produces the `lucide-<name>` key and a
 missing palette falls back to the icon's default. The fallback applies to the
 bundled set only - an `assetBaseUrl` is served exactly as requested.
 
+An artwork's first manifest entry sets its default palette. A later entry for
+the same id bakes an extra palette, served when a host asks for that palette by
+name. `tab-underline` also ships in water, which is the palette a host paints
+navigation in.
+
 | Artwork | Default palette |
 |---|---|
 | `crescent-moon`, `moonlit-shoreline`, `alarm-bell` | `moonlight` |

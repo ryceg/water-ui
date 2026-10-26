@@ -1,0 +1,21 @@
+[package]
+name = "water-ui-android"
+version = "0.1.0"
+edition = "2024"
+description = "JNI adapter for the watercolour engine on Android: shared Vulkan device, per-view scene instances rendered into premultiplied sRGB bitmaps"
+publish = false
+
+[lib]
+# cdylib is the artifact an Android app loads (`libwater_ui_android.so`); rlib
+# so the host-side tests link the platform-neutral half.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+water-ui-core = { path = "../water-ui-core" }
+water-ui-infra = { path = "../water-ui-infra" }
+# The catalogue lookup, palette parsing and intensity live in the web
+# adapter's platform-neutral `scene_tools`; nothing wasm-only links here.
+water-ui-wasm = { path = "../water-ui-wasm" }
+wgpu = "30.0.1"
+pollster = "1"
+jni = "0.21.1"
