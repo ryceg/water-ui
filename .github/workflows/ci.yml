@@ -50,10 +50,9 @@ jobs:
         with:
           tool: cargo-ndk
       # The shipped artifact: one stripped cdylib per ABI, linked against the
-      # runner's NDK at the minimum API level the adapter supports.
+      # runner's NDK (cargo-ndk finds it through ANDROID_NDK_ROOT) at the
+      # minimum API level the adapter supports.
       - name: Cross-compile the JNI adapter
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
         run: >-
           cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -P 26 -o target/jniLibs
           build -p water-ui-android --profile android-release --locked
