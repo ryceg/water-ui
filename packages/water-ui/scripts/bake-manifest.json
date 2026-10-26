@@ -87,6 +87,16 @@
       "stripHeight": 24
     },
     {
+      "id": "tab-underline",
+      "palette": "water",
+      "surfaces": [
+        "light",
+        "dark"
+      ],
+      "stripWidth": 192,
+      "stripHeight": 24
+    },
+    {
       "id": "selection-edge",
       "palette": "water",
       "surfaces": [
