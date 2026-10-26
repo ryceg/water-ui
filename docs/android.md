@@ -25,7 +25,11 @@ These behave as on the web:
 
 - Errors are `Code: detail` and cross as `WaterUiException`. The codes are the
   same ones the web uses: `InstanceLimit`, `DeviceLost`, `UnknownArtwork`, and
-  so on.
+  so on. On top of those:
+  - Android adds `InvalidSize` and `InvalidHandle` (a zero handle).
+  - It adds `InvalidArgument` (for example, a buffer that isn't direct).
+  - It adds `Poisoned`: an earlier panic left the handle unusable, so destroy it.
+  - A device with no Vulkan adapter is not an error: `engineCreate` returns 0.
 - At most four instances are live at once. A host can change that with
   `engineSetMaxLiveInstances`.
 - Each instance's checkpoint budget is 48 MB, the browser's figure. Passing a
@@ -34,15 +38,28 @@ These behave as on the web:
 - Panics are caught at the JNI boundary and thrown as `Panic`, so they never
   unwind into the JVM.
 
-An engine is `Send` but not `Sync`. A host creates it on one thread and
-drives the engine and all its instances from that thread, for example a
-single-threaded executor. Handles are freed exactly once.
+Each handle points to a mutex. A call from a second thread waits for the
+first call to finish, so it never races it. A single-threaded executor still
+keeps the GPU's work in order.
+
+Free each handle exactly once. A freed handle is a dangling pointer the
+adapter cannot detect, so wrap handles in a class that zeroes its handle on
+close.
+
+A host that minifies must keep the binding. Add
+`kotlin/consumer-rules.pro` to the module's `consumerProguardFiles`. Without
+it, R8 strips the exception constructor the native side calls.
+
+Seeds are the full 64 bits of a `Long`, and negative values are valid seeds.
 
 ## Pixels
 
 `instanceRender` blocks on GPU readback and writes **premultiplied sRGB
 RGBA8**. That is the in-memory layout of an `ARGB_8888` `Bitmap`, so the host
 calls `Bitmap.copyPixelsFromBuffer` and draws the result like any other image.
+The adapter writes from the buffer's start and ignores its position, but
+`copyPixelsFromBuffer` reads from the position and advances it, so rewind the
+buffer before each copy.
 The engine's own frames are premultiplied *linear*. The adapter divides alpha
 out, encodes sRGB, and multiplies alpha back in gamma space, because that is
 how Android composites. Readback suits accent-sized canvases (tens of
@@ -58,12 +75,19 @@ ANDROID_NDK_HOME=... cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -P 26 -o jn
   build -p water-ui-android --profile android-release
 ```
 
-Each ABI produces a stripped `libwater_ui_android.so` of about 5–6 MB. The
+Each ABI produces a stripped `libwater_ui_android.so` of about 5–6 MB.
+`.cargo/config.toml` links the 64-bit ABIs at 16 KB page alignment, which
+Google Play requires for Android 15 devices whatever the NDK's default. The
 `android-release` profile uses link-time optimisation and keeps panics
 unwinding. The adapter requests Vulkan only: GLES lacks the storage-buffer
 limits the simulation needs. On a device without Vulkan, or where the device
 refuses the default limits, `engineCreate` returns 0 or throws `InitFailed`,
 and the host falls back.
+
+The device is requested with `wgpu::Limits::default()`, which is the
+desktop baseline and stricter than the shaders need. A driver that reports
+less than that baseline is refused even when it could run the engine.
+Requesting the computed minimum is a known follow-up.
 
 ## Host behaviour to mirror
 

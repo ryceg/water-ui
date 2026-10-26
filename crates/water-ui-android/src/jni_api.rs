@@ -1,11 +1,15 @@
 //! JNI surface over `host`, bound to `io.github.ryceg.waterui.WaterUiNative`
-//! (see `kotlin/` for the Kotlin side; the two change together). Engines and
-//! instances cross as opaque `jlong` handles the Kotlin wrapper owns and
-//! frees exactly once. Every failure crosses as a `WaterUiException` whose
+//! (see `kotlin/` for the Kotlin side; the two change together, and
+//! `tests/binding.rs` checks they agree). Engines and instances cross as
+//! opaque `jlong` handles to a `Mutex` each, which the host owns and frees
+//! exactly once: a call from another thread waits rather than racing, since
+//! Android hosts naturally touch an instance from the main thread and a
+//! render thread both. Every failure crosses as a `WaterUiException` whose
 //! message is `Code: detail`; a panic crosses the same way as `Panic`, so it
 //! never unwinds into the JVM.
 
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::sync::{Mutex, MutexGuard};
 
 use jni::JNIEnv;
 use jni::objects::{JByteBuffer, JClass, JString};
@@ -51,23 +55,50 @@ fn flag(value: bool) -> jboolean {
     if value { JNI_TRUE } else { JNI_FALSE }
 }
 
-/// # Safety
-/// `handle` is a live `Engine` handle from `engineCreate`.
-unsafe fn engine<'a>(handle: jlong) -> Result<&'a Engine, HostError> {
-    if handle == 0 {
-        return Err(HostError::new("InvalidHandle", "engine handle is 0"));
-    }
-    Ok(unsafe { &*(handle as *const Engine) })
+fn into_handle<T>(value: T) -> jlong {
+    Box::into_raw(Box::new(Mutex::new(value))) as jlong
 }
 
 /// # Safety
-/// `handle` is a live `Instance` handle from an `instanceCreate*`, used by
-/// one thread at a time.
-unsafe fn instance<'a>(handle: jlong) -> Result<&'a mut Instance, HostError> {
+/// `handle` is 0 or a live handle of `T` from `into_handle`, not yet freed.
+unsafe fn lock<'a, T>(handle: jlong, kind: &str) -> Result<MutexGuard<'a, T>, HostError> {
     if handle == 0 {
-        return Err(HostError::new("InvalidHandle", "instance handle is 0"));
+        return Err(HostError::new(
+            "InvalidHandle",
+            format!("{kind} handle is 0"),
+        ));
     }
-    Ok(unsafe { &mut *(handle as *mut Instance) })
+    let cell = unsafe { &*(handle as *const Mutex<T>) };
+    cell.lock().map_err(|_| {
+        HostError::new(
+            "Poisoned",
+            format!("an earlier panic left this {kind} unusable; destroy it"),
+        )
+    })
+}
+
+/// # Safety
+/// `handle` is a live `Engine` handle from `engineCreate`.
+unsafe fn engine<'a>(handle: jlong) -> Result<MutexGuard<'a, Engine>, HostError> {
+    unsafe { lock(handle, "engine") }
+}
+
+/// # Safety
+/// `handle` is a live `Instance` handle from an `instanceCreate*`.
+unsafe fn instance<'a>(handle: jlong) -> Result<MutexGuard<'a, Instance>, HostError> {
+    unsafe { lock(handle, "instance") }
+}
+
+/// Frees a handle; a panic in the engine's teardown is swallowed rather than
+/// aborting the process at the FFI boundary.
+///
+/// # Safety
+/// `handle` is 0 or a live handle of `T`, freed exactly once.
+unsafe fn free<T>(handle: jlong) {
+    if handle != 0 {
+        let boxed = unsafe { Box::from_raw(handle as *mut Mutex<T>) };
+        let _ = catch_unwind(AssertUnwindSafe(move || drop(boxed)));
+    }
 }
 
 /// `checkpoint_budget_bytes` 0 keeps the engine's budget; any value below
@@ -93,9 +124,11 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_engineCreate(
     mut env: JNIEnv,
     _class: JClass,
 ) -> jlong {
-    call(&mut env, 0, |_| {
-        Ok(Engine::create()?.map_or(0, |e| Box::into_raw(Box::new(e)) as jlong))
-    })
+    call(
+        &mut env,
+        0,
+        |_| Ok(Engine::create()?.map_or(0, into_handle)),
+    )
 }
 
 #[unsafe(no_mangle)]
@@ -104,9 +137,7 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_engineDestroy(
     _class: JClass,
     handle: jlong,
 ) {
-    if handle != 0 {
-        drop(unsafe { Box::from_raw(handle as *mut Engine) });
-    }
+    unsafe { free::<Engine>(handle) }
 }
 
 #[unsafe(no_mangle)]
@@ -195,7 +226,8 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_instanceCreate
         let surface = string(env, &surface)?;
         let request = CatalogueRequest {
             artwork_id: &artwork_id,
-            seed: seed.max(0) as u64,
+            // Every bit pattern is a seed: a JVM Long is often negative.
+            seed: seed as u64,
             palette: &palette,
             intensity,
             detail: &detail,
@@ -211,7 +243,7 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_instanceCreate
                 checkpoint_budget_bytes,
             ),
         )?;
-        Ok(Box::into_raw(Box::new(instance)) as jlong)
+        Ok(into_handle(instance))
     })
 }
 
@@ -238,7 +270,7 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_instanceCreate
                 checkpoint_budget_bytes,
             ),
         )?;
-        Ok(Box::into_raw(Box::new(instance)) as jlong)
+        Ok(into_handle(instance))
     })
 }
 
@@ -264,7 +296,8 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_catalogueScene
         let surface = string(env, &surface)?;
         let json = host::catalogue_scene_json(&CatalogueRequest {
             artwork_id: &artwork_id,
-            seed: seed.max(0) as u64,
+            // Every bit pattern is a seed: a JVM Long is often negative.
+            seed: seed as u64,
             palette: &palette,
             intensity,
             detail: &detail,
@@ -283,9 +316,7 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_instanceDestro
     _class: JClass,
     handle: jlong,
 ) {
-    if handle != 0 {
-        drop(unsafe { Box::from_raw(handle as *mut Instance) });
-    }
+    unsafe { free::<Instance>(handle) }
 }
 
 #[unsafe(no_mangle)]

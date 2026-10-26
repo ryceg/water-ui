@@ -3,7 +3,10 @@
 //! its own scene and renders into a caller-owned premultiplied sRGB buffer,
 //! the layout of an `ARGB_8888` bitmap. Errors are `Code: detail`, the codes
 //! the web adapter uses (`scene_tools::SceneToolError` for scenes, plus
-//! `GpuUnavailable`, `InitFailed`, `InstanceLimit`, `DeviceLost`, `Engine`).
+//! `InitFailed`, `InstanceLimit`, `DeviceLost`, `Engine`), and the Android-only
+//! `InvalidDetail`, `InvalidSurface`, `InvalidCurve`, `InvalidSize`. The JNI
+//! layer adds `InvalidHandle`, `InvalidArgument`, `Poisoned` and `Panic`. A
+//! device with no adapter is not an error: `Engine::create` returns `None`.
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -68,7 +71,8 @@ fn guard_device(ctx: &GpuContext) -> Result<(), HostError> {
 }
 
 /// How an instance spends its wall clock; see the web adapter's
-/// `createInstance` for each field. Zero keeps a field's default.
+/// `createInstance` for each field. `duration_ms` must be positive; zero keeps
+/// the other fields' defaults.
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct Timing {
     pub duration_ms: f32,
@@ -91,8 +95,6 @@ pub struct CatalogueRequest<'a> {
     pub sim_resolution: u32,
 }
 
-/// `Send` but not `Sync`: the forked engines keep per-thread GPU state, so a
-/// host drives one engine and its instances from a single thread.
 /// Scene JSON for a catalogue artwork, with no engine: a host composes its
 /// own scenes (a bloom, say) on a catalogue donor's paper and parameters,
 /// as the web package does with `catalogueScene`.
@@ -126,6 +128,9 @@ fn parse_request(request: &CatalogueRequest<'_>) -> Result<(DetailLevel, Surface
     Ok((detail, surface))
 }
 
+/// `Send` but not `Sync` (the GPU timers hold `Cell`s): a host drives an
+/// engine from one thread at a time, which the JNI layer enforces with a
+/// mutex per handle.
 pub struct Engine {
     ctx: GpuContext,
     template: GpuEngine,
@@ -337,7 +342,8 @@ impl Instance {
         self.step(|p| p.finish_immediately())
     }
 
-    /// `frontLoaded` (default), `linear` or `reveal`, as the web adapter.
+    /// `frontLoaded`, `linear` or `reveal`, as the web adapter. A new
+    /// instance starts on `reveal` at the default paint fraction.
     pub fn set_progress_curve(&mut self, curve: &str) -> Result<(), HostError> {
         let curve = match curve {
             "frontLoaded" | "front-loaded" => ProgressCurve::FrontLoaded,
@@ -389,7 +395,11 @@ impl Instance {
         height: u32,
         out: &mut [u8],
     ) -> Result<(), HostError> {
-        let needed = (width as usize) * (height as usize) * 4;
+        // Checked: a 32-bit ABI overflows at a few hundred megapixels.
+        let needed = (width as usize)
+            .checked_mul(height as usize)
+            .and_then(|px| px.checked_mul(4))
+            .unwrap_or(usize::MAX);
         if width == 0 || height == 0 || out.len() < needed {
             return Err(HostError::new(
                 "InvalidSize",

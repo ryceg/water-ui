@@ -1,0 +1,8 @@
+# Android 15 devices may use 16 KB memory pages, and Google Play requires
+# native libraries to be aligned for them. NDKs before r28 link at 4 KB by
+# default, so the alignment is set here rather than left to the NDK in use.
+[target.aarch64-linux-android]
+rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
+
+[target.x86_64-linux-android]
+rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
