@@ -62,6 +62,21 @@ object WaterUiNative {
         checkpointBudgetBytes: Long,
     ): Long
 
+    /**
+     * The scene document a catalogue artwork builds, with no engine: the
+     * donor a host-composed scene (a bloom) takes its paper and parameters
+     * from. Arguments as [instanceCreateCatalogue].
+     */
+    @JvmStatic external fun catalogueScene(
+        artworkId: String,
+        seed: Long,
+        palette: String,
+        intensity: Float,
+        detail: String,
+        surface: String,
+        simResolution: Int,
+    ): String
+
     /** A versioned scene document (see docs/scene-format.md). */
     @JvmStatic external fun instanceCreateScene(
         engine: Long,

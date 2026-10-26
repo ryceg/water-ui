@@ -11,7 +11,7 @@ use jni::JNIEnv;
 use jni::objects::{JByteBuffer, JClass, JString};
 use jni::sys::{JNI_FALSE, JNI_TRUE, jboolean, jfloat, jint, jlong, jstring};
 
-use crate::host::{CatalogueRequest, Engine, HostError, Instance, Timing};
+use crate::host::{self, CatalogueRequest, Engine, HostError, Instance, Timing};
 
 const EXCEPTION_CLASS: &str = "io/github/ryceg/waterui/WaterUiException";
 
@@ -239,6 +239,41 @@ pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_instanceCreate
             ),
         )?;
         Ok(Box::into_raw(Box::new(instance)) as jlong)
+    })
+}
+
+/// Scene JSON for a catalogue artwork; needs no engine (see
+/// `host::catalogue_scene_json`).
+#[allow(clippy::too_many_arguments)]
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_ryceg_waterui_WaterUiNative_catalogueScene(
+    mut env: JNIEnv,
+    _class: JClass,
+    artwork_id: JString,
+    seed: jlong,
+    palette: JString,
+    intensity: jfloat,
+    detail: JString,
+    surface: JString,
+    sim_resolution: jint,
+) -> jstring {
+    call(&mut env, std::ptr::null_mut(), |env| {
+        let artwork_id = string(env, &artwork_id)?;
+        let palette = string(env, &palette)?;
+        let detail = string(env, &detail)?;
+        let surface = string(env, &surface)?;
+        let json = host::catalogue_scene_json(&CatalogueRequest {
+            artwork_id: &artwork_id,
+            seed: seed.max(0) as u64,
+            palette: &palette,
+            intensity,
+            detail: &detail,
+            surface: &surface,
+            sim_resolution: sim_resolution.max(0) as u32,
+        })?;
+        env.new_string(json)
+            .map(|s| s.into_raw())
+            .map_err(|e| HostError::new("Engine", e))
     })
 }
 

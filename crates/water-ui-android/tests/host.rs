@@ -128,3 +128,16 @@ fn bad_arguments_cross_as_coded_errors() {
     let err = instance.render_into(8, 8, &mut [0u8; 16]).err().unwrap();
     assert!(err.message().starts_with("InvalidSize:"), "{err}");
 }
+
+#[test]
+fn a_catalogue_scene_round_trips_into_an_instance() {
+    let json = water_ui_android::host::catalogue_scene_json(&edge()).unwrap();
+    assert!(json.contains("\"version\""), "not a scene document");
+    let Some(engine) = engine() else {
+        eprintln!("skipped: no hardware GPU");
+        return;
+    };
+    let mut instance = engine.scene_instance(&json, timing()).unwrap();
+    instance.finish_immediately().unwrap();
+    assert!(instance.is_finished());
+}

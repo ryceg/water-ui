@@ -18,6 +18,7 @@ copying it.
 | `Engine::catalogue_instance` | `instanceCreateCatalogue` | `createCatalogueInstance` |
 | `Engine::scene_instance` | `instanceCreateScene` | `createInstance` |
 | `Instance::render_into` | `instanceRender` into a direct `ByteBuffer` | `render` to a canvas |
+| `host::catalogue_scene_json` | `catalogueScene` (no engine needed) | `catalogueScene` |
 | play, pause, reset, advance, seek, finish, curve, go live, append | same names, `instance` prefix | same |
 
 These behave as on the web:

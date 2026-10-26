@@ -11,6 +11,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use water_ui_core::application::playback::DEFAULT_PAINT_WALL_FRACTION;
 use water_ui_core::application::{EngineError, Playback, PlaybackState, ProgressCurve, Renderer};
 use water_ui_core::domain::{Scene, Seed};
+use water_ui_infra::authoring::DetailLevel;
 use water_ui_infra::document::{parse_appended_json, parse_scene_json};
 use water_ui_infra::export::linear_to_srgb;
 use water_ui_infra::gpu::{GpuContext, GpuEngine};
@@ -92,6 +93,39 @@ pub struct CatalogueRequest<'a> {
 
 /// `Send` but not `Sync`: the forked engines keep per-thread GPU state, so a
 /// host drives one engine and its instances from a single thread.
+/// Scene JSON for a catalogue artwork, with no engine: a host composes its
+/// own scenes (a bloom, say) on a catalogue donor's paper and parameters,
+/// as the web package does with `catalogueScene`.
+pub fn catalogue_scene_json(request: &CatalogueRequest<'_>) -> Result<String, HostError> {
+    let (detail, surface) = parse_request(request)?;
+    scene_tools::catalogue_scene_json_with_resolution(
+        request.artwork_id,
+        Seed(request.seed),
+        request.palette,
+        request.intensity,
+        detail,
+        surface,
+        (request.sim_resolution > 0).then_some(request.sim_resolution),
+    )
+    .map_err(|e| HostError(e.to_string()))
+}
+
+fn parse_request(request: &CatalogueRequest<'_>) -> Result<(DetailLevel, Surface), HostError> {
+    let detail = scene_tools::parse_detail(request.detail).ok_or_else(|| {
+        HostError::new(
+            "InvalidDetail",
+            format!("{:?} is not small|medium|large|extralarge", request.detail),
+        )
+    })?;
+    let surface = Surface::parse(request.surface).ok_or_else(|| {
+        HostError::new(
+            "InvalidSurface",
+            format!("{:?} is not light|dark", request.surface),
+        )
+    })?;
+    Ok((detail, surface))
+}
+
 pub struct Engine {
     ctx: GpuContext,
     template: GpuEngine,
@@ -158,18 +192,7 @@ impl Engine {
         timing: Timing,
     ) -> Result<Instance, HostError> {
         self.admit()?;
-        let detail = scene_tools::parse_detail(request.detail).ok_or_else(|| {
-            HostError::new(
-                "InvalidDetail",
-                format!("{:?} is not small|medium|large|extralarge", request.detail),
-            )
-        })?;
-        let surface = Surface::parse(request.surface).ok_or_else(|| {
-            HostError::new(
-                "InvalidSurface",
-                format!("{:?} is not light|dark", request.surface),
-            )
-        })?;
+        let (detail, surface) = parse_request(request)?;
         let scene = scene_tools::catalogue_scene_with_resolution(
             request.artwork_id,
             Seed(request.seed),
