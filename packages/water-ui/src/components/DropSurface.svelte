@@ -215,9 +215,22 @@
     return () => observer.disconnect();
   });
 
+  /**
+   * A touch lights the mark when it lifts, not when it lands. Most touches on a
+   * list start a scroll, which the browser ends with `pointercancel` and no
+   * `pointerup`, and building a live instance is a long task on a phone that
+   * would land just as the scroll starts.
+   */
   function enter(event: PointerEvent) {
+    if (event.pointerType === 'touch') return;
     hovered = true;
     if (event.pointerType !== 'mouse') stuck = true;
+  }
+
+  function tapped(event: PointerEvent) {
+    if (event.pointerType !== 'touch') return;
+    hovered = true;
+    stuck = true;
   }
 
   function leave(event: PointerEvent) {
@@ -431,6 +444,7 @@
   role={as === 'div' ? 'presentation' : undefined}
   {...rest}
   onpointerenter={enter}
+  onpointerup={tapped}
   onpointerleave={leave}
   onfocusin={() => (focused = true)}
   onfocusout={() => (focused = false)}
